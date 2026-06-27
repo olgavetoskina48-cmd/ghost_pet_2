@@ -5,18 +5,13 @@ import random
 
 app = Flask(__name__, static_folder='webapp')
 
-# --- SUPABASE ---
 SUPABASE_URL = "https://jzscsndwuchzlellgqea.supabase.co"
 SUPABASE_KEY = "sb_publishable_-kqOsr7gFZRi8ctCNPaLgg_4mjU-NZy"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# --- ТОКЕН ---
 TOKEN = "8869752953:AAF2gOnS-bFts-EGsS1PZZ4pfUrRXLwkN-M"
-
-# --- Хранилище для игр ---
 game_data = {}
 
-# --- БАЗА ---
 def get_pet(user_id):
     response = supabase.table('pets').select('*').eq('user_id', user_id).execute()
     if response.data:
@@ -26,7 +21,6 @@ def get_pet(user_id):
 def update_pet(user_id, data):
     supabase.table('pets').update(data).eq('user_id', user_id).execute()
 
-# --- API ПИТОМЦА ---
 @app.route('/api/pet/<int:user_id>')
 def api_pet(user_id):
     pet = get_pet(user_id)
@@ -85,7 +79,6 @@ def api_train(user_id):
     update_pet(user_id, {'дисциплина': new_val})
     return jsonify({'дисциплина': new_val, 'message': 'Тренировка! +15'})
 
-# --- API ИГР ---
 @app.route('/api/dice/<int:user_id>', methods=['POST'])
 def api_dice(user_id):
     pet = get_pet(user_id)
