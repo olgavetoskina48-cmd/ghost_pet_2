@@ -206,8 +206,19 @@
                 document.getElementById('gameMessage').innerText = '❌ Нет пользователя';
                 return;
             }
+            
+            let message = '';
+            if (game === 'dice') {
+                message = '🎲 Скинь мне кубик! Я хочу играть! 🎲 #dice';
+            } else if (game === 'guess_easy') {
+                message = '🔢 Давай поиграем в угадай число (1–10)! Напиши мне число от 1 до 10! #guess_easy';
+            } else if (game === 'guess_hard') {
+                message = '🧠 Угадай число (1–100)! Это сложнее. Напиши мне число от 1 до 100! #guess_hard';
+            }
+            
+            // Отправляем сообщение в чат через Telegram API
+            tg.sendData(JSON.stringify({ type: 'game_request', text: message }));
             tg.close();
-            window.location.href = `tg://resolve?domain=${game}`;
         }
 
         tg.ready();
