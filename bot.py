@@ -2,11 +2,26 @@ import os
 import random
 import re
 import time
+import threading
 from datetime import datetime, date
 from telebot import TeleBot, types
 from supabase import create_client
-import threading
-import logging
+from flask import Flask
+
+# --- FLASK ДЛЯ ПОРТА ---
+flask_app = Flask(__name__)
+
+@flask_app.route('/')
+def home():
+    return "Бот работает!"
+
+@flask_app.route('/ping')
+def ping():
+    return "pong", 200
+
+def run_flask():
+    port = int(os.environ.get('PORT', 10000))
+    flask_app.run(host='0.0.0.0', port=port)
 
 # --- НАСТРОЙКИ ---
 TOKEN = "8869752953:AAF2gOnS-bFts-EGsS1PZZ4pfUrRXLwkN-M"
@@ -364,7 +379,7 @@ def app_command(message):
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton(
         text="🐾 Открыть питомца",
-        web_app=types.WebAppInfo(url="https://ghost_pet_2.onrender.com")
+        web_app=types.WebAppInfo(url="https://ghost-pet-webapp.onrender.com")
     ))
     bot.send_message(message.chat.id, "Нажми на кнопку, чтобы открыть питомца:", reply_markup=markup)
 
@@ -405,5 +420,10 @@ def handle_messages(message):
 
 # --- ЗАПУСК ---
 if __name__ == '__main__':
+    # Запускаем Flask в отдельном потоке
+    flask_thread = threading.Thread(target=run_flask)
+    flask_thread.daemon = True
+    flask_thread.start()
+    
     print("✅ Бот Питомец запущен!")
     bot.polling(none_stop=True)
