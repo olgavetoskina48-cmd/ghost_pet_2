@@ -322,7 +322,7 @@ def app_command(message):
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton(
         text="🐾 Открыть питомца",
-        web_app=types.WebAppInfo(url="https://ghost-pet-webapp.onrender.com")
+        web_app=types.WebAppInfo(url="https://ghost-pet.onrender.com")
     ))
     bot.send_message(message.chat.id, "Нажми на кнопку, чтобы открыть питомца:", reply_markup=markup)
 
@@ -335,7 +335,6 @@ def handle_dice_emoji(message):
         bot.send_message(message.chat.id, "Сначала заведи питомца через /newpet")
         return
     
-    # Кидаем кубики
     user_roll = random.randint(1, 6)
     bot_roll = random.randint(1, 6)
     
