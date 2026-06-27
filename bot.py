@@ -42,7 +42,7 @@ SOUNDS = {
     "пингвин": ["фыр", "кхе", "цок"]
 }
 
-# --- ЭМОДЗИ ДЛЯ ЖИВОТНЫХ ---
+# --- ЭМОДЗИ ---
 PET_EMOJIS = {
     "кошка": "🐱",
     "собака": "🐶",
@@ -53,7 +53,6 @@ PET_EMOJIS = {
     "пингвин": "🐧"
 }
 
-# --- ЭМОДЗИ ДЛЯ АТРИБУТОВ ---
 ATTR_EMOJIS = {
     "голод": "🥩",
     "счастье": "🍽",
@@ -323,7 +322,7 @@ def app_command(message):
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton(
         text="🐾 Открыть питомца",
-        web_app=types.WebAppInfo(url="https://ghost-pet-webapp.onrender.com")
+        web_app=types.WebAppInfo(url="https://ghost-pet.onrender.com")
     ))
     bot.send_message(message.chat.id, "Нажми на кнопку, чтобы открыть питомца:", reply_markup=markup)
 
@@ -401,7 +400,7 @@ def guess_game(message):
     except:
         pass
 
-# --- ОБРАБОТЧИК СООБЩЕНИЙ (для подсчёта) ---
+# --- ОБРАБОТЧИК СООБЩЕНИЙ ---
 @bot.message_handler(func=lambda message: True)
 def handle_messages(message):
     if message.text and message.text.startswith('/'):
@@ -417,12 +416,10 @@ def handle_messages(message):
 
 # --- ЗАПУСК ---
 if __name__ == '__main__':
-    # Запускаем Flask в отдельном потоке
     flask_thread = threading.Thread(target=run_flask)
     flask_thread.daemon = True
     flask_thread.start()
     
-    # ПРИНУДИТЕЛЬНО УДАЛЯЕМ ВЕБХУК
     try:
         bot.delete_webhook()
         print("✅ Вебхук удалён")
