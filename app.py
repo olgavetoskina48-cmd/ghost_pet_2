@@ -29,6 +29,7 @@ ATTR_EMOJIS = {
     "лапки": "🐾"
 }
 
+# --- API ---
 def get_pet(user_id):
     response = supabase.table('pets').select('*').eq('user_id', user_id).execute()
     if response.data:
@@ -50,13 +51,22 @@ def get_stage(messages):
     else:
         return "Взрослый 🧑"
 
-# --- API ---
 @app.route('/api/pet/<int:user_id>')
 def api_pet(user_id):
     pet = get_pet(user_id)
     if not pet:
         return jsonify({'error': 'Нет питомца'}), 404
     return jsonify(pet)
+
+@app.route('/api/send_game_request', methods=['POST'])
+def api_send_game_request():
+    data = request.get_json()
+    user_id = data.get('user_id')
+    text = data.get('text')
+    
+    # Здесь нужно отправить сообщение пользователю через бота
+    # Это будет делать бот, а не Flask
+    return jsonify({'status': 'ok'})
 
 @app.route('/api/feed/<int:user_id>', methods=['POST'])
 def api_feed(user_id):
