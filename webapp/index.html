@@ -138,7 +138,6 @@
             "пингвин": "🐧"
         };
 
-        // Функция для отправки сообщения от имени пользователя в чат
         function sendMessageToChat(text) {
             if (!user_id) {
                 document.getElementById('gameMessage').innerText = '❌ Ошибка: пользователь не определён';
@@ -233,11 +232,11 @@
             
             let message = '';
             if (game === 'dice') {
-                message = '🎲 Скинь мне кубик! Я хочу играть! 🎲 #dice';
+                message = '🎲 Скинь мне кубик!';
             } else if (game === 'guess_easy') {
-                message = '🔢 Давай поиграем в угадай число (1–10)! Напиши мне число от 1 до 10! #guess_easy';
+                message = '🔢 Напиши число от 1 до 10';
             } else if (game === 'guess_hard') {
-                message = '🧠 Угадай число (1–100)! Это сложнее. Напиши мне число от 1 до 100! #guess_hard';
+                message = '🧠 Напиши число от 1 до 100';
             }
             
             sendMessageToChat(message);
@@ -247,4 +246,4 @@
         loadPet();
     </script>
 </body>
-</html>
+    </html>
