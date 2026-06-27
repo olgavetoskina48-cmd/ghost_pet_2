@@ -422,5 +422,12 @@ if __name__ == '__main__':
     flask_thread.daemon = True
     flask_thread.start()
     
+    # ПРИНУДИТЕЛЬНО УДАЛЯЕМ ВЕБХУК
+    try:
+        bot.delete_webhook()
+        print("✅ Вебхук удалён")
+    except Exception as e:
+        print(f"⚠️ Ошибка при удалении вебхука: {e}")
+    
     print("✅ Бот Питомец запущен!")
     bot.polling(none_stop=True)
