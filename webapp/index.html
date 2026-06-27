@@ -81,7 +81,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- Страница питомца -->
         <div id="mainPage" class="page active">
             <div class="pet-name" id="petName">Питомец</div>
             <span id="petEmoji" class="emoji">🐱</span>
@@ -112,7 +111,6 @@
             <div class="footer">призрачный питомец</div>
         </div>
 
-        <!-- Страница игр -->
         <div id="gamesPage" class="page">
             <button class="back-btn" onclick="showMain()">← Назад</button>
             <div class="pet-name" style="font-size:20px;">🎮 Игры</div>
@@ -207,6 +205,7 @@
                 return;
             }
             
+            // Формируем сообщение для отправки в чат
             let message = '';
             if (game === 'dice') {
                 message = '🎲 Скинь мне кубик! Я хочу играть! 🎲 #dice';
@@ -217,8 +216,17 @@
             }
             
             // Отправляем сообщение в чат через Telegram API
-            tg.sendData(JSON.stringify({ type: 'game_request', text: message }));
-            tg.close();
+            fetch(`/api/send_game_request`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: user_id, text: message })
+            })
+            .then(() => {
+                tg.close();
+            })
+            .catch(() => {
+                document.getElementById('gameMessage').innerText = '❌ Ошибка отправки';
+            });
         }
 
         tg.ready();
