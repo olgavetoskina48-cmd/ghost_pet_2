@@ -1,6 +1,7 @@
 from flask import Flask, send_from_directory, request, jsonify
 from supabase import create_client
 import os
+import random
 import requests
 
 app = Flask(__name__, static_folder='webapp')
@@ -71,7 +72,6 @@ def api_send_message():
     if not user_id or not text:
         return jsonify({'error': 'Не хватает данных'}), 400
     
-    # Отправляем сообщение в чат от имени бота (но адресатом будет пользователь)
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
     payload = {
         'chat_id': user_id,
