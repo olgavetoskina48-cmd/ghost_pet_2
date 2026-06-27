@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Серийчик</title>
+    <title>Питомец</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -83,7 +83,7 @@
     <div class="container">
         <!-- Страница питомца -->
         <div id="mainPage" class="page active">
-            <div class="pet-name" id="petName">Серийчик</div>
+            <div class="pet-name" id="petName">Питомец</div>
             <span id="petEmoji" class="emoji">🐱</span>
             <div id="stage" class="stage">Стадия: —</div>
 
@@ -169,7 +169,7 @@
                         showNotification('❌ ' + data.error);
                         return;
                     }
-                    document.getElementById('petName').innerText = data.pet_name || 'Серийчик';
+                    document.getElementById('petName').innerText = data.pet_name || 'Питомец';
                     document.getElementById('stage').innerText = 'Стадия: ' + data.stage;
                     document.getElementById('petEmoji').innerText = petEmojis[data.pet_type] || '🐾';
                     document.getElementById('golod').innerText = data.голод;
@@ -214,4 +214,4 @@
         loadPet();
     </script>
 </body>
-  </html>
+</html>
