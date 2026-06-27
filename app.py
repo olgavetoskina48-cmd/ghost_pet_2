@@ -34,6 +34,9 @@ ATTR_EMOJIS = {
     "лапки": "🐾"
 }
 
+# --- Хранилище для игр ---
+game_data = {}
+
 # --- API ---
 def get_pet(user_id):
     response = supabase.table('pets').select('*').eq('user_id', user_id).execute()
@@ -62,30 +65,6 @@ def api_pet(user_id):
     if not pet:
         return jsonify({'error': 'Нет питомца'}), 404
     return jsonify(pet)
-
-@app.route('/api/send_message', methods=['POST'])
-def api_send_message():
-    data = request.get_json()
-    user_id = data.get('user_id')
-    text = data.get('text')
-    
-    if not user_id or not text:
-        return jsonify({'error': 'Не хватает данных'}), 400
-    
-    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    payload = {
-        'chat_id': user_id,
-        'text': text
-    }
-    
-    try:
-        response = requests.post(url, json=payload)
-        if response.status_code == 200:
-            return jsonify({'status': 'ok'})
-        else:
-            return jsonify({'error': 'Ошибка отправки'}), 500
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/feed/<int:user_id>', methods=['POST'])
 def api_feed(user_id):
@@ -137,6 +116,90 @@ def api_train(user_id):
     new_val = min(100, pet['дисциплина'] + 15)
     update_pet(user_id, {'дисциплина': new_val})
     return jsonify({'дисциплина': new_val, 'message': 'Тренировка! +15'})
+
+@app.route('/api/dice/<int:user_id>', methods=['POST'])
+def api_dice(user_id):
+    pet = get_pet(user_id)
+    if not pet:
+        return jsonify({'error': 'Нет питомца'}), 404
+    
+    user_roll = random.randint(1, 6)
+    bot_roll = random.randint(1, 6)
+    
+    win = user_roll > bot_roll
+    lose = user_roll < bot_roll
+    draw = user_roll == bot_roll
+    
+    bonus = 0
+    if win:
+        series = pet.get('games_series', 0) + 1
+        bonus = 5 * series
+        update_pet(user_id, {'лапки': pet['лапки'] + bonus, 'games_series': series})
+    elif lose:
+        update_pet(user_id, {'games_series': 0})
+    
+    return jsonify({
+        'user_roll': user_roll,
+        'bot_roll': bot_roll,
+        'win': win,
+        'lose': lose,
+        'draw': draw,
+        'bonus': bonus
+    })
+
+@app.route('/api/guess/<int:user_id>', methods=['POST'])
+def api_guess(user_id):
+    data = request.get_json()
+    guess = data.get('guess')
+    pet = get_pet(user_id)
+    if not pet:
+        return jsonify({'error': 'Нет питомца'}), 404
+    
+    game = game_data.get(user_id)
+    if not game:
+        return jsonify({'error': 'Игра не начата'}), 400
+    
+    game['attempts'] += 1
+    number = game['number']
+    
+    if guess == number:
+        bonus = 25 if game['type'] == 'hard' else 5
+        update_pet(user_id, {'лапки': pet['лапки'] + bonus})
+        game_data.pop(user_id, None)
+        return jsonify({'win': True, 'bonus': bonus})
+    
+    if game['attempts'] >= game['max_attempts']:
+        game_data.pop(user_id, None)
+        return jsonify({'lose': True, 'number': number})
+    
+    hint = 'больше' if guess < number else 'меньше'
+    return jsonify({
+        'win': False,
+        'lose': False,
+        'hint': hint,
+        'attempts_left': game['max_attempts'] - game['attempts']
+    })
+
+@app.route('/api/start_guess/<int:user_id>/<string:mode>', methods=['POST'])
+def api_start_guess(user_id, mode):
+    pet = get_pet(user_id)
+    if not pet:
+        return jsonify({'error': 'Нет питомца'}), 404
+    
+    if mode == 'easy':
+        number = random.randint(1, 10)
+        max_attempts = 3
+    else:
+        number = random.randint(1, 100)
+        max_attempts = 10
+    
+    game_data[user_id] = {
+        'type': mode,
+        'number': number,
+        'attempts': 0,
+        'max_attempts': max_attempts
+    }
+    return jsonify({'status': 'ok'})
 
 @app.route('/')
 def index():
