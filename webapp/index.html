@@ -5,156 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Питомец</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-        }
-
-        body {
-            background: #0b0b0e;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 8px;
-        }
-
-        .app {
-            max-width: 420px;
-            width: 100%;
-            height: 780px;
-            background: #1a1a24;
-            border-radius: 36px;
-            border: 1px solid #3c3a5c;
-            box-shadow: 0 8px 40px rgba(124, 92, 191, 0.3);
-            overflow: hidden;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .page {
-            display: none;
-            flex-direction: column;
-            height: 100%;
-            padding: 20px 16px 16px;
-            position: relative;
-            overflow-y: auto;
-            flex: 1;
-        }
-        .page.active {
-            display: flex;
-        }
-
-        /* ----- ФОНЫ ----- */
-        #page-pet {
-            background: #0d071a;
-            position: relative;
-        }
-        #page-pet .bg-image {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 0;
-            opacity: 0.85;
-        }
-
-        #page-home {
-            background: #0d071a;
-            position: relative;
-        }
-        #page-home .bg-image {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: 0;
-            opacity: 0.9;
-        }
-
-        /* ----- КОНТЕНТ ----- */
-        .page-content {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex: 1;
-            padding-top: 10px;
-        }
-
-        .pet-name {
-            font-size: 26px;
-            font-weight: 700;
-            color: #e0d7ff;
-            text-shadow: 0 0 30px rgba(124, 92, 191, 0.3);
-            margin-bottom: 2px;
-        }
-
-        .emoji {
-            font-size: 140px;
-            margin: 6px 0;
-            display: block;
-            line-height: 1.1;
-            filter: drop-shadow(0 0 40px rgba(124, 92, 191, 0.4));
-        }
-
-        .stage {
-            font-size: 18px;
-            font-weight: 600;
-            color: #a8a0c2;
-            margin-bottom: 6px;
-            text-shadow: 0 0 20px rgba(124, 92, 191, 0.2);
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px 12px;
-            background: rgba(35, 33, 58, 0.85);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 14px 16px;
-            margin: 10px 0 16px;
-            font-size: 16px;
-            text-align: left;
-            color: #c8c0e0;
-            width: 100%;
-            border: 1px solid rgba(60, 58, 92, 0.4);
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: #0b0b0e; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 8px; }
+        .app { max-width: 420px; width: 100%; height: 780px; background: #1a1a24; border-radius: 36px; border: 1px solid #3c3a5c; box-shadow: 0 8px 40px rgba(124, 92, 191, 0.3); overflow: hidden; position: relative; display: flex; flex-direction: column; }
+        .page { display: none; flex-direction: column; height: 100%; padding: 20px 16px 16px; position: relative; overflow-y: auto; flex: 1; }
+        .page.active { display: flex; }
+        #page-pet { background: #0d071a; position: relative; }
+        #page-pet .bg-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; opacity: 0.85; }
+        #page-home { background: #0d071a; position: relative; }
+        #page-home .bg-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; opacity: 0.9; }
+        .page-content { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; flex: 1; padding-top: 10px; }
+        .pet-name { font-size: 26px; font-weight: 700; color: #e0d7ff; text-shadow: 0 0 30px rgba(124, 92, 191, 0.3); margin-bottom: 2px; }
+        .emoji { font-size: 140px; margin: 6px 0; display: block; line-height: 1.1; filter: drop-shadow(0 0 40px rgba(124, 92, 191, 0.4)); }
+        .stage { font-size: 18px; font-weight: 600; color: #a8a0c2; margin-bottom: 6px; text-shadow: 0 0 20px rgba(124, 92, 191, 0.2); }
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; background: rgba(35, 33, 58, 0.85); backdrop-filter: blur(10px); border-radius: 16px; padding: 14px 16px; margin: 10px 0 16px; font-size: 16px; text-align: left; color: #c8c0e0; width: 100%; border: 1px solid rgba(60, 58, 92, 0.4); }
         .stats b { color: #e0d7ff; }
-
-        .btn-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            justify-content: center;
-            margin-bottom: 10px;
-            width: 100%;
-        }
-        .btn {
-            background: rgba(124, 92, 191, 0.6);
-            color: white;
-            border: 1px solid rgba(124, 92, 191, 0.3);
-            border-radius: 40px;
-            padding: 8px 12px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            flex: 1 0 auto;
-            min-width: 48px;
-            transition: 0.2s;
-            backdrop-filter: blur(5px);
-            box-shadow: 0 0 20px rgba(124, 92, 191, 0.15);
-        }
+        .btn-group { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 10px; width: 100%; }
+        .btn { background: rgba(124, 92, 191, 0.6); color: white; border: 1px solid rgba(124, 92, 191, 0.3); border-radius: 40px; padding: 8px 12px; font-size: 16px; font-weight: 500; cursor: pointer; flex: 1 0 auto; min-width: 48px; transition: 0.2s; backdrop-filter: blur(5px); box-shadow: 0 0 20px rgba(124, 92, 191, 0.15); }
         .btn:active { transform: scale(0.95); }
         .btn-green { background: rgba(74, 155, 124, 0.6); border-color: rgba(74, 155, 124, 0.3); }
         .btn-blue { background: rgba(74, 124, 155, 0.6); border-color: rgba(74, 124, 155, 0.3); }
@@ -162,110 +29,24 @@
         .btn-pink { background: rgba(191, 92, 138, 0.6); border-color: rgba(191, 92, 138, 0.3); }
         .btn-game { background: rgba(108, 74, 139, 0.7); border-color: rgba(108, 74, 139, 0.4); flex: 1; padding: 10px 16px; font-size: 18px; }
         .btn-restart { background: #4a7c9b; flex: 1; padding: 10px 16px; font-size: 18px; }
-
-        .message {
-            margin-top: 8px;
-            font-size: 15px;
-            color: #b080ff;
-            min-height: 22px;
-        }
-
-        /* ----- НИЖНЕЕ МЕНЮ ----- */
-        .bottom-nav {
-            display: flex;
-            justify-content: space-around;
-            background: rgba(26, 26, 36, 0.95);
-            backdrop-filter: blur(12px);
-            border-top: 1px solid #3c3a5c;
-            padding: 8px 0 12px;
-            border-radius: 0 0 36px 36px;
-            z-index: 20;
-            flex-shrink: 0;
-        }
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #6a5a7a;
-            font-size: 10px;
-            cursor: pointer;
-            transition: 0.2s;
-            background: none;
-            border: none;
-            padding: 4px 8px;
-        }
-        .nav-item .icon {
-            font-size: 22px;
-            margin-bottom: 2px;
-            transition: 0.2s;
-        }
-        .nav-item.active {
-            color: #b080ff;
-        }
-        .nav-item.active .icon {
-            filter: drop-shadow(0 0 12px rgba(124, 92, 191, 0.6));
-        }
-
-        /* ----- СТРАНИЦА ИГР ----- */
-        .games-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            width: 100%;
-            margin-top: 20px;
-        }
-        .games-list .btn {
-            padding: 12px;
-            font-size: 18px;
-            text-align: center;
-        }
-
-        /* ----- СТРАНИЦА ИГРЫ (окно) ----- */
-        #gamePage .game-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-            width: 100%;
-            margin-top: 20px;
-        }
-        #gamePage input {
-            background: rgba(35, 33, 58, 0.85);
-            border: 1px solid #3c3a5c;
-            color: #e0d7ff;
-            padding: 12px;
-            border-radius: 40px;
-            width: 80%;
-            font-size: 18px;
-            outline: none;
-            text-align: center;
-        }
-        .game-result {
-            font-size: 18px;
-            color: #b080ff;
-            white-space: pre-line;
-            text-align: center;
-            margin-top: 8px;
-        }
-
-        /* ----- СКРОЛЛ ----- */
+        .message { margin-top: 8px; font-size: 15px; color: #b080ff; min-height: 22px; }
+        .bottom-nav { display: flex; justify-content: space-around; background: rgba(26, 26, 36, 0.95); backdrop-filter: blur(12px); border-top: 1px solid #3c3a5c; padding: 8px 0 12px; border-radius: 0 0 36px 36px; z-index: 20; flex-shrink: 0; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #6a5a7a; font-size: 10px; cursor: pointer; transition: 0.2s; background: none; border: none; padding: 4px 8px; }
+        .nav-item .icon { font-size: 22px; margin-bottom: 2px; transition: 0.2s; }
+        .nav-item.active { color: #b080ff; }
+        .nav-item.active .icon { filter: drop-shadow(0 0 12px rgba(124, 92, 191, 0.6)); }
+        .games-list { display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: 20px; }
+        .games-list .btn { padding: 12px; font-size: 18px; text-align: center; }
+        #gamePage .game-content { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; margin-top: 20px; }
+        #gamePage input { background: rgba(35, 33, 58, 0.85); border: 1px solid #3c3a5c; color: #e0d7ff; padding: 12px; border-radius: 40px; width: 80%; font-size: 18px; outline: none; text-align: center; }
+        .game-result { font-size: 18px; color: #b080ff; white-space: pre-line; text-align: center; margin-top: 8px; }
         .page::-webkit-scrollbar { width: 0; }
-
-        /* ----- АДАПТАЦИЯ ----- */
-        @media (max-height: 700px) {
-            .app { height: 100vh; border-radius: 28px; }
-            .emoji { font-size: 100px; }
-            .pet-name { font-size: 20px; }
-            .stats { font-size: 14px; padding: 10px 12px; }
-            .btn { font-size: 14px; padding: 6px 10px; min-width: 40px; }
-            .bottom-nav { padding: 4px 0 8px; }
-            .nav-item .icon { font-size: 18px; }
-        }
+        @media (max-height: 700px) { .app { height: 100vh; border-radius: 28px; } .emoji { font-size: 100px; } .pet-name { font-size: 20px; } .stats { font-size: 14px; padding: 10px 12px; } .btn { font-size: 14px; padding: 6px 10px; min-width: 40px; } .bottom-nav { padding: 4px 0 8px; } .nav-item .icon { font-size: 18px; } }
     </style>
 </head>
 <body>
     <div class="app" id="app">
-        <!-- ===== СТРАНИЦА «ПИТОМЕЦ» ===== -->
+        <!-- СТРАНИЦА ПИТОМЕЦ -->
         <div class="page active" id="page-pet">
             <img class="bg-image" src="images/1782593675710.jpg" alt="Задний фон">
             <div class="page-content">
@@ -291,7 +72,7 @@
             </div>
         </div>
 
-        <!-- ===== СТРАНИЦА «ДОМ» ===== -->
+        <!-- СТРАНИЦА ДОМ -->
         <div class="page" id="page-home">
             <img class="bg-image" src="images/1782593687674.jpg" alt="Комната">
             <div class="page-content">
@@ -299,11 +80,10 @@
                 <span class="emoji" id="homePetEmoji">🐱</span>
                 <div class="stage" id="homeStage">Стадия: —</div>
                 <div class="home-status" id="homeStatus">😊 Чувствует себя отлично</div>
-                <div class="sleep-timer" id="sleepTimer"></div>
             </div>
         </div>
 
-        <!-- ===== СТРАНИЦА «ИГРЫ» ===== -->
+        <!-- СТРАНИЦА ИГРЫ (меню) -->
         <div class="page" id="page-games">
             <div class="page-content">
                 <div class="pet-name" style="font-size:24px;">🎮 Игры</div>
@@ -316,7 +96,7 @@
             </div>
         </div>
 
-        <!-- ===== СТРАНИЦА ИГРЫ (окно) ===== -->
+        <!-- СТРАНИЦА ИГРЫ (окно) -->
         <div class="page" id="gamePage">
             <div class="page-content">
                 <button class="btn" onclick="closeGame()" style="margin-bottom:12px; align-self:flex-start; padding:8px 16px; font-size:14px;">← Назад</button>
@@ -325,7 +105,7 @@
             </div>
         </div>
 
-        <!-- ===== СТРАНИЦА «МАГАЗИН» (заглушка) ===== -->
+        <!-- СТРАНИЦА МАГАЗИН -->
         <div class="page" id="page-shop">
             <div class="page-content">
                 <div class="pet-name" style="font-size:24px;">🛒 Магазин</div>
@@ -333,7 +113,7 @@
             </div>
         </div>
 
-        <!-- ===== СТРАНИЦА «ПРОФИЛЬ» (заглушка) ===== -->
+        <!-- СТРАНИЦА ПРОФИЛЬ -->
         <div class="page" id="page-profile">
             <div class="page-content">
                 <div class="pet-name" style="font-size:24px;">👤 Профиль</div>
@@ -341,23 +121,13 @@
             </div>
         </div>
 
-        <!-- ===== НИЖНЕЕ МЕНЮ ===== -->
+        <!-- НИЖНЕЕ МЕНЮ -->
         <div class="bottom-nav" id="bottomNav">
-            <button class="nav-item active" data-page="page-pet">
-                <span class="icon">🐾</span><span>Питомец</span>
-            </button>
-            <button class="nav-item" data-page="page-games">
-                <span class="icon">🎮</span><span>Игры</span>
-            </button>
-            <button class="nav-item" data-page="page-home">
-                <span class="icon">🏠</span><span>Дом</span>
-            </button>
-            <button class="nav-item" data-page="page-shop">
-                <span class="icon">🛒</span><span>Магазин</span>
-            </button>
-            <button class="nav-item" data-page="page-profile">
-                <span class="icon">👤</span><span>Профиль</span>
-            </button>
+            <button class="nav-item active" data-page="page-pet"><span class="icon">🐾</span><span>Питомец</span></button>
+            <button class="nav-item" data-page="page-games"><span class="icon">🎮</span><span>Игры</span></button>
+            <button class="nav-item" data-page="page-home"><span class="icon">🏠</span><span>Дом</span></button>
+            <button class="nav-item" data-page="page-shop"><span class="icon">🛒</span><span>Магазин</span></button>
+            <button class="nav-item" data-page="page-profile"><span class="icon">👤</span><span>Профиль</span></button>
         </div>
     </div>
 
@@ -365,29 +135,17 @@
     <script>
         let tg = window.Telegram.WebApp;
         let user_id = tg.initDataUnsafe?.user?.id;
-
-        // --- ДАННЫЕ ПИТОМЦА ---
         let petData = {};
-        const petEmojis = {
-            "кошка": "🐱",
-            "собака": "🐶",
-            "лиса": "🦊",
-            "панда": "🐼",
-            "кролик": "🐇",
-            "ёжик": "🦔",
-            "пингвин": "🐧"
-        };
+        let currentGame = null;
+
+        const petEmojis = { "кошка": "🐱", "собака": "🐶", "лиса": "🦊", "панда": "🐼", "кролик": "🐇", "ёжик": "🦔", "пингвин": "🐧" };
 
         // --- ЗАГРУЗКА ПИТОМЦА ---
         function loadPet() {
             if (!user_id) return;
             fetch(`/api/pet/${user_id}`)
                 .then(res => res.json())
-                .then(data => {
-                    if (data.error) return;
-                    petData = data;
-                    updateUI();
-                })
+                .then(data => { if (!data.error) { petData = data; updateUI(); } })
                 .catch(() => {});
         }
 
@@ -396,44 +154,25 @@
             const type = petData.pet_type || 'кошка';
             const emoji = petEmojis[type] || '🐾';
             const stage = petData.stage || 'Зарождение ✨';
-
             document.getElementById('petName').innerText = name;
             document.getElementById('petEmoji').innerText = emoji;
             document.getElementById('stage').innerText = 'Стадия: ' + stage;
-            document.getElementById('golod').innerText = petData.голод;
-            document.getElementById('schastie').innerText = petData.счастье;
-            document.getElementById('gigiena').innerText = petData.гигиена;
-            document.getElementById('energia').innerText = petData.энергия;
-            document.getElementById('disciplina').innerText = petData.дисциплина;
-            document.getElementById('lapki').innerText = petData.лапки;
-
+            document.getElementById('golod').innerText = petData.голод || 0;
+            document.getElementById('schastie').innerText = petData.счастье || 0;
+            document.getElementById('gigiena').innerText = petData.гигиена || 0;
+            document.getElementById('energia').innerText = petData.энергия || 0;
+            document.getElementById('disciplina').innerText = petData.дисциплина || 0;
+            document.getElementById('lapki').innerText = petData.лапки || 0;
             document.getElementById('homePetName').innerText = name;
             document.getElementById('homePetEmoji').innerText = emoji;
             document.getElementById('homeStage').innerText = 'Стадия: ' + stage;
         }
 
         function action(type) {
-            showNotification('⏳ ...', false);
             fetch(`/api/${type}/${user_id}`, { method: 'POST' })
-                .then(res => res.json().then(data => ({ status: res.status, body: data })))
-                .then(({ status, body }) => {
-                    if (status === 400) {
-                        showNotification('⚠️ ' + (body.error || 'Ошибка'));
-                        return;
-                    }
-                    showNotification('✅ ' + (body.message || 'Готово!'), false);
-                    loadPet();
-                })
-                .catch(() => { showNotification('❌ Ошибка'); });
-        }
-
-        function showNotification(text, isError = true) {
-            const msg = document.getElementById('message');
-            if (msg) {
-                msg.innerText = text;
-                msg.style.color = isError ? '#b080ff' : '#7c5cbf';
-                setTimeout(() => { msg.style.color = '#b080ff'; }, 5000);
-            }
+                .then(res => res.json())
+                .then(() => { loadPet(); })
+                .catch(() => {});
         }
 
         // --- НАВИГАЦИЯ ---
@@ -444,49 +183,27 @@
                 document.getElementById(pageId).classList.add('active');
                 document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
                 this.classList.add('active');
-                if (pageId === 'page-pet' || pageId === 'page-home') {
-                    loadPet();
-                }
+                if (pageId === 'page-pet' || pageId === 'page-home') loadPet();
+                if (pageId === 'page-games') document.getElementById('gameMessage').innerText = '';
             });
         });
 
         // --- ИГРЫ ---
-        let currentGame = null;
-
         function openGame(game) {
             currentGame = game;
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('gamePage').classList.add('active');
-
             const title = document.getElementById('gameTitle');
             const content = document.getElementById('gameContent');
-
             if (game === 'dice') {
                 title.innerText = '🎲 Кости';
-                content.innerHTML = `
-                    <button class="btn btn-game" onclick="diceRoll()" style="width:100%;">Кинуть кубик</button>
-                    <div id="diceResult" class="game-result"></div>
-                `;
+                content.innerHTML = `<button class="btn btn-game" onclick="diceRoll()" style="width:100%;">Кинуть кубик</button><div id="diceResult" class="game-result"></div>`;
             } else if (game === 'guess_easy' || game === 'guess_hard') {
                 const max = game === 'guess_easy' ? 10 : 100;
                 const mode = game === 'guess_easy' ? 'easy' : 'hard';
                 title.innerText = game === 'guess_easy' ? '🔢 Угадай (1–10)' : '🧠 Угадай (1–100)';
-                content.innerHTML = `
-                    <div style="font-size:18px; color:#a8a0c2;">Введи число от 1 до ${max}</div>
-                    <input type="number" id="guessInput" min="1" max="${max}">
-                    <button class="btn btn-game" onclick="guessNumber()" style="width:100%;">Проверить</button>
-                    <div id="guessResult" class="game-result"></div>
-                `;
-                fetch(`/api/start_guess/${user_id}/${mode}`, { method: 'POST' })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.error) {
-                            document.getElementById('guessResult').innerText = '❌ ' + data.error;
-                        }
-                    })
-                    .catch(() => {
-                        document.getElementById('guessResult').innerText = '❌ Ошибка запуска игры';
-                    });
+                content.innerHTML = `<div style="font-size:18px; color:#a8a0c2;">Введи число от 1 до ${max}</div><input type="number" id="guessInput" min="1" max="${max}"><button class="btn btn-game" onclick="guessNumber()" style="width:100%;">Проверить</button><div id="guessResult" class="game-result"></div>`;
+                fetch(`/api/start_guess/${user_id}/${mode}`, { method: 'POST' }).catch(() => {});
             }
         }
 
@@ -506,22 +223,17 @@
                     if (data.win) text += `\n✅ Ты выиграл! +${data.bonus} лапок!`;
                     else if (data.lose) text += '\n❌ Ты проиграл! Ничего не заработал.';
                     else text += '\n🤝 Ничья! Никто не получил лапок.';
-                    result.innerHTML = text + '<div class="btn-group-restart" style="margin-top:12px;"><button class="btn btn-restart" onclick="restartGame(\'dice\')">🎲 Играть снова</button></div>';
+                    result.innerHTML = text + `<div style="margin-top:12px;"><button class="btn btn-restart" onclick="diceRoll()">🎲 Кинуть ещё</button></div>`;
                     loadPet();
                 })
-                .catch(() => {
-                    document.getElementById('diceResult').innerText = '❌ Ошибка';
-                });
+                .catch(() => { document.getElementById('diceResult').innerText = '❌ Ошибка'; });
         }
 
         function guessNumber() {
             if (!user_id) return;
             const input = document.getElementById('guessInput');
             const guess = parseInt(input.value);
-            if (isNaN(guess)) {
-                document.getElementById('guessResult').innerText = '❌ Введи число!';
-                return;
-            }
+            if (isNaN(guess)) { document.getElementById('guessResult').innerText = '❌ Введи число!'; return; }
             fetch(`/api/guess/${user_id}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -531,10 +243,10 @@
             .then(data => {
                 const result = document.getElementById('guessResult');
                 if (data.win) {
-                    result.innerHTML = `🎉 Ты угадал! +${data.bonus} лапок!<div class="btn-group-restart" style="margin-top:12px;"><button class="btn btn-restart" onclick="restartGame('${currentGame}')">🔢 Играть снова</button></div>`;
+                    result.innerHTML = `🎉 Ты угадал! +${data.bonus} лапок!<div style="margin-top:12px;"><button class="btn btn-restart" onclick="openGame('${currentGame}')">🔢 Играть снова</button></div>`;
                     loadPet();
                 } else if (data.lose) {
-                    result.innerHTML = `❌ Ты не угадал! Загаданное число было ${data.number}.<div class="btn-group-restart" style="margin-top:12px;"><button class="btn btn-restart" onclick="restartGame('${currentGame}')">🔢 Играть снова</button></div>`;
+                    result.innerHTML = `❌ Ты не угадал! Загаданное число было ${data.number}.<div style="margin-top:12px;"><button class="btn btn-restart" onclick="openGame('${currentGame}')">🔢 Играть снова</button></div>`;
                     loadPet();
                 } else {
                     const emoji = data.hint === 'больше' ? '📈' : '📉';
@@ -542,20 +254,11 @@
                 }
                 input.value = '';
             })
-            .catch(() => {
-                document.getElementById('guessResult').innerText = '❌ Ошибка';
-            });
+            .catch(() => { document.getElementById('guessResult').innerText = '❌ Ошибка'; });
         }
 
-        function restartGame(game) {
-            document.getElementById('diceResult').innerHTML = '';
-            document.getElementById('guessResult').innerHTML = '';
-            openGame(game);
-        }
-
-        // --- ЗАПУСК ---
         tg.ready();
         loadPet();
     </script>
 </body>
-    </html>
+</html>
