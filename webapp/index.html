@@ -22,7 +22,6 @@
             padding: 8px;
         }
 
-        /* ----- ОСНОВНОЙ КОНТЕЙНЕР ----- */
         .app {
             max-width: 420px;
             width: 100%;
@@ -37,7 +36,6 @@
             flex-direction: column;
         }
 
-        /* ----- СТРАНИЦЫ (общие) ----- */
         .page {
             display: none;
             flex-direction: column;
@@ -51,297 +49,39 @@
             display: flex;
         }
 
-        /* ----- СТРАНИЦА «ПИТОМЕЦ» (лес) ----- */
+        /* ----- СТРАНИЦА «ПИТОМЕЦ» (задний фон) ----- */
         #page-pet {
-            background: radial-gradient(ellipse at 30% 20%, #1a0b2e, #0d071a 70%);
+            background: #0d071a;
             position: relative;
         }
-
-        /* Луна */
-        #page-pet::before {
-            content: '';
-            position: absolute;
-            top: 32px;
-            left: 40px;
-            width: 72px;
-            height: 72px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #fcee9f, #f5d742);
-            box-shadow: 0 0 60px rgba(245, 215, 66, 0.4), 0 0 120px rgba(245, 215, 66, 0.15);
-            z-index: 1;
-        }
-
-        /* Звёзды */
-        #page-pet .stars {
+        #page-pet .bg-image {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            object-fit: cover;
             z-index: 0;
-            background-image:
-                radial-gradient(2px 2px at 20px 30px, #eee, transparent),
-                radial-gradient(2px 2px at 40px 70px, #fff, transparent),
-                radial-gradient(2px 2px at 80px 120px, #eee, transparent),
-                radial-gradient(2px 2px at 140px 40px, #fff, transparent),
-                radial-gradient(2px 2px at 200px 100px, #eee, transparent),
-                radial-gradient(2px 2px at 260px 60px, #fff, transparent),
-                radial-gradient(2px 2px at 320px 140px, #eee, transparent),
-                radial-gradient(2px 2px at 380px 20px, #fff, transparent);
-            background-size: 400px 200px;
-            background-repeat: repeat;
-            opacity: 0.7;
+            opacity: 0.85;
         }
-
-        /* Ветки деревьев (сверху) */
-        #page-pet .branches {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-            pointer-events: none;
-            background:
-                radial-gradient(ellipse at 10% 0%, #1a0f1a 20%, transparent 60%),
-                radial-gradient(ellipse at 90% 0%, #1a0f1a 20%, transparent 60%);
-        }
-
-        /* Каменная площадка */
-        #page-pet .stone-circle {
-            position: absolute;
-            bottom: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 160px;
-            height: 160px;
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #4a3a5a, #2a1a3a 80%);
-            box-shadow: inset 0 0 40px rgba(100, 80, 140, 0.5), 0 0 60px rgba(80, 60, 120, 0.2);
-            border: 1px solid #5a4a6a;
-            z-index: 2;
-        }
-        #page-pet .stone-circle::after {
-            content: '';
-            position: absolute;
-            top: 10%;
-            left: 10%;
-            width: 80%;
-            height: 80%;
-            border-radius: 50%;
-            background: radial-gradient(circle at 40% 40%, #5a4a6a, transparent 70%);
-            opacity: 0.4;
-        }
-
-        /* Светящиеся грибы */
-        #page-pet .mushroom {
-            position: absolute;
-            z-index: 2;
-            font-size: 22px;
-            filter: drop-shadow(0 0 12px rgba(120, 200, 255, 0.5));
-        }
-        #page-pet .mushroom.left { bottom: 16%; left: 8%; }
-        #page-pet .mushroom.right { bottom: 14%; right: 8%; }
-
-        /* Фонарь */
-        #page-pet .lantern {
-            position: absolute;
-            z-index: 2;
-            font-size: 34px;
-            bottom: 22%;
-            left: 6%;
-            filter: drop-shadow(0 0 30px rgba(255, 200, 100, 0.7));
-        }
-
-        /* Светлячки */
-        #page-pet .firefly {
-            position: absolute;
-            z-index: 2;
-            font-size: 14px;
-            opacity: 0.8;
-            animation: float 4s infinite alternate ease-in-out;
-        }
-        @keyframes float {
-            0% { transform: translateY(0px) scale(1); opacity: 0.6; }
-            100% { transform: translateY(-20px) scale(1.2); opacity: 1; }
-        }
-        #page-pet .firefly.f1 { bottom: 30%; left: 12%; animation-delay: 0s; }
-        #page-pet .firefly.f2 { bottom: 40%; right: 10%; animation-delay: 1.5s; }
-        #page-pet .firefly.f3 { bottom: 50%; left: 20%; animation-delay: 3s; }
 
         /* ----- СТРАНИЦА «ДОМ» (комната) ----- */
         #page-home {
-            background: radial-gradient(ellipse at 50% 80%, #1f112a, #0e0716);
+            background: #0d071a;
             position: relative;
         }
-
-        /* Окно */
-        #page-home .window {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 200px;
-            height: 140px;
-            background: radial-gradient(ellipse at 30% 40%, #1a2a4a, #0d1525);
-            border: 6px solid #3a2a3a;
-            border-radius: 12px 12px 4px 4px;
-            box-shadow: inset 0 0 40px rgba(60, 80, 160, 0.3);
-            z-index: 1;
-            overflow: hidden;
-        }
-        #page-home .window::before {
-            content: '';
+        #page-home .bg-image {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background:
-                linear-gradient(90deg, transparent 48%, #2a1a2a 48%, #2a1a2a 52%, transparent 52%),
-                linear-gradient(0deg, transparent 48%, #2a1a2a 48%, #2a1a2a 52%, transparent 52%);
-            opacity: 0.15;
-        }
-        /* Шторы */
-        #page-home .curtain {
-            position: absolute;
-            top: 16px;
-            width: 60px;
-            height: 160px;
-            background: radial-gradient(ellipse at 30% 20%, #4a2a5a, #2a1a3a);
-            border-radius: 0 0 20px 20px;
-            z-index: 2;
+            object-fit: cover;
+            z-index: 0;
             opacity: 0.9;
         }
-        #page-home .curtain.left { left: 10%; }
-        #page-home .curtain.right { right: 10%; }
 
-        /* Диван */
-        #page-home .sofa {
-            position: absolute;
-            bottom: 80px;
-            left: 8%;
-            width: 120px;
-            height: 60px;
-            background: radial-gradient(ellipse at 30% 30%, #6a4a7a, #3a2a4a);
-            border-radius: 40px 40px 12px 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-            z-index: 3;
-            border: 1px solid #5a3a6a;
-        }
-        #page-home .sofa::before {
-            content: '🛋️';
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 40px;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-        }
-
-        /* Вигвам (палатка) */
-        #page-home .wigwam {
-            position: absolute;
-            bottom: 70px;
-            right: 8%;
-            width: 100px;
-            height: 100px;
-            background: radial-gradient(ellipse at 30% 20%, #4a3a4a, #1a1a1a);
-            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-            border: 2px solid #5a4a5a;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-            z-index: 3;
-        }
-        #page-home .wigwam::before {
-            content: '🏕️';
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 48px;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-        }
-
-        /* Ковёр */
-        #page-home .carpet {
-            position: absolute;
-            bottom: 16px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 260px;
-            height: 80px;
-            border-radius: 50%;
-            background: radial-gradient(ellipse at 40% 30%, #4a2a5a, #2a1a3a);
-            box-shadow: inset 0 0 40px rgba(80, 60, 120, 0.3);
-            border: 1px solid #3a2a4a;
-            z-index: 1;
-        }
-        #page-home .carpet::after {
-            content: '🧶';
-            position: absolute;
-            bottom: 8px;
-            right: 20px;
-            font-size: 20px;
-            opacity: 0.6;
-        }
-
-        /* Светящийся кристалл */
-        #page-home .crystal {
-            position: absolute;
-            top: 60px;
-            right: 12%;
-            font-size: 32px;
-            z-index: 3;
-            filter: drop-shadow(0 0 30px rgba(160, 120, 255, 0.6));
-            animation: pulse 3s infinite alternate;
-        }
-        @keyframes pulse {
-            0% { filter: drop-shadow(0 0 20px rgba(160, 120, 255, 0.4)); }
-            100% { filter: drop-shadow(0 0 50px rgba(160, 120, 255, 0.9)); }
-        }
-
-        /* Гирлянда */
-        #page-home .garland {
-            position: absolute;
-            top: 10px;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            z-index: 3;
-            background: linear-gradient(90deg, #ffaa55, #ff66aa, #aa66ff, #66aaff, #ffaa55);
-            background-size: 200% 100%;
-            animation: garland 4s linear infinite;
-            opacity: 0.6;
-        }
-        @keyframes garland {
-            0% { background-position: 0% 0%; }
-            100% { background-position: 200% 0%; }
-        }
-
-        /* Настольная лампа */
-        #page-home .lamp {
-            position: absolute;
-            bottom: 44%;
-            left: 18%;
-            font-size: 28px;
-            z-index: 3;
-            filter: drop-shadow(0 0 40px rgba(255, 200, 100, 0.4));
-        }
-
-        /* Магический свет от кристалла */
-        #page-home .glow {
-            position: absolute;
-            top: 20%;
-            right: 10%;
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(160, 120, 255, 0.15), transparent 70%);
-            z-index: 0;
-            animation: pulse 4s infinite alternate;
-        }
-
-        /* ----- КОНТЕНТ НА СТРАНИЦАХ (поверх фона) ----- */
+        /* ----- КОНТЕНТ ПОВЕРХ ФОНА ----- */
         .page-content {
             position: relative;
             z-index: 10;
@@ -361,7 +101,7 @@
         }
 
         .emoji {
-            font-size: 120px;
+            font-size: 140px;
             margin: 6px 0;
             display: block;
             line-height: 1.1;
@@ -422,6 +162,14 @@
         .btn-orange { background: rgba(176, 138, 74, 0.6); border-color: rgba(176, 138, 74, 0.3); color: #e0d7ff; }
         .btn-pink { background: rgba(191, 92, 138, 0.6); border-color: rgba(191, 92, 138, 0.3); }
         .btn-game { background: rgba(108, 74, 139, 0.7); border-color: rgba(108, 74, 139, 0.4); flex: 1; padding: 10px 16px; font-size: 18px; }
+        .btn-restart { background: #4a7c9b; flex: 1; padding: 10px 16px; font-size: 18px; }
+
+        .message {
+            margin-top: 8px;
+            font-size: 15px;
+            color: #b080ff;
+            min-height: 22px;
+        }
 
         /* ----- НИЖНЕЕ МЕНЮ ----- */
         .bottom-nav {
@@ -459,47 +207,32 @@
             filter: drop-shadow(0 0 12px rgba(124, 92, 191, 0.6));
         }
 
-        /* ----- ДОМАШНЯЯ СТРАНИЦА (комната) контент ----- */
-        #page-home .page-content {
-            padding-top: 20px;
+        /* ----- СТРАНИЦА ИГР (заглушка) ----- */
+        .games-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            margin-top: 20px;
         }
-        #page-home .pet-name {
-            font-size: 22px;
-            margin-bottom: 2px;
-        }
-        #page-home .emoji {
-            font-size: 80px;
-            margin: 4px 0;
-        }
-        #page-home .home-status {
-            color: #a8a0c2;
-            font-size: 16px;
-            margin-top: 4px;
-            text-shadow: 0 0 20px rgba(124, 92, 191, 0.2);
-        }
-        #page-home .sleep-timer {
-            color: #b080ff;
-            font-size: 14px;
-            margin-top: 4px;
-            opacity: 0.8;
+        .games-list .btn {
+            padding: 12px;
+            font-size: 18px;
+            text-align: center;
         }
 
-        /* ----- СКРОЛЛ (чтобы не ломалось) ----- */
+        /* ----- СКРОЛЛ ----- */
         .page::-webkit-scrollbar { width: 0; }
 
-        /* ----- АДАПТАЦИЯ ПОД МАЛЕНЬКИЕ ЭКРАНЫ ----- */
+        /* ----- АДАПТАЦИЯ ----- */
         @media (max-height: 700px) {
             .app { height: 100vh; border-radius: 28px; }
-            .emoji { font-size: 80px; }
+            .emoji { font-size: 100px; }
             .pet-name { font-size: 20px; }
             .stats { font-size: 14px; padding: 10px 12px; }
             .btn { font-size: 14px; padding: 6px 10px; min-width: 40px; }
             .bottom-nav { padding: 4px 0 8px; }
             .nav-item .icon { font-size: 18px; }
-            #page-home .window { width: 160px; height: 100px; }
-            #page-home .sofa { width: 80px; height: 40px; }
-            #page-home .wigwam { width: 70px; height: 70px; }
-            #page-home .carpet { width: 200px; height: 60px; }
         }
     </style>
 </head>
@@ -507,22 +240,11 @@
     <div class="app" id="app">
         <!-- ===== СТРАНИЦА «ПИТОМЕЦ» ===== -->
         <div class="page active" id="page-pet">
-            <div class="stars"></div>
-            <div class="branches"></div>
-
-            <div class="stone-circle"></div>
-            <div class="mushroom left">🍄</div>
-            <div class="mushroom right">🍄</div>
-            <div class="lantern">🏮</div>
-            <div class="firefly f1">✨</div>
-            <div class="firefly f2">✨</div>
-            <div class="firefly f3">✨</div>
-
+            <img class="bg-image" src="images/1782593675710.jpg" alt="Задний фон">
             <div class="page-content">
                 <div class="pet-name" id="petName">Питомец</div>
                 <span class="emoji" id="petEmoji">🐱</span>
                 <div class="stage" id="stage">Стадия: —</div>
-
                 <div class="stats">
                     <span>🥩 Голод: <b id="golod">—</b></span>
                     <span>🍽 Счастье: <b id="schastie">—</b></span>
@@ -531,7 +253,6 @@
                     <span>📏 Дисциплина: <b id="disciplina">—</b></span>
                     <span>🐾 Лапки: <b id="lapki">—</b></span>
                 </div>
-
                 <div class="btn-group">
                     <button class="btn btn-green" onclick="action('feed')">🍽</button>
                     <button class="btn btn-orange" onclick="action('play')">⚾</button>
@@ -539,53 +260,67 @@
                     <button class="btn" onclick="action('sleep')">💤</button>
                     <button class="btn btn-pink" onclick="action('train')">⚡</button>
                 </div>
-
-                <div id="message" class="message" style="margin-top:8px; font-size:15px; color:#b080ff; min-height:22px;">Нажми кнопку, чтобы взаимодействовать</div>
+                <div id="message" class="message">Нажми кнопку, чтобы взаимодействовать</div>
             </div>
         </div>
 
         <!-- ===== СТРАНИЦА «ДОМ» ===== -->
         <div class="page" id="page-home">
-            <div class="window"></div>
-            <div class="curtain left"></div>
-            <div class="curtain right"></div>
-            <div class="garland"></div>
-            <div class="glow"></div>
-            <div class="crystal">💎</div>
-            <div class="lamp">🪔</div>
-            <div class="sofa"></div>
-            <div class="wigwam"></div>
-            <div class="carpet"></div>
-
+            <img class="bg-image" src="images/1782593687674.jpg" alt="Комната">
             <div class="page-content">
                 <div class="pet-name" id="homePetName">Питомец</div>
                 <span class="emoji" id="homePetEmoji">🐱</span>
+                <div class="stage" id="homeStage">Стадия: —</div>
                 <div class="home-status" id="homeStatus">😊 Чувствует себя отлично</div>
                 <div class="sleep-timer" id="sleepTimer"></div>
+            </div>
+        </div>
+
+        <!-- ===== СТРАНИЦА «ИГРЫ» (заглушка) ===== -->
+        <div class="page" id="page-games">
+            <div class="page-content">
+                <div class="pet-name" style="font-size:24px;">🎮 Игры</div>
+                <div class="games-list">
+                    <button class="btn btn-game" onclick="startGame('dice')">🎲 Кости</button>
+                    <button class="btn btn-game" onclick="startGame('guess_easy')">🔢 Угадай (1–10)</button>
+                    <button class="btn btn-game" onclick="startGame('guess_hard')">🧠 Угадай (1–100)</button>
+                </div>
+                <div id="gameMessage" class="message" style="margin-top:20px;"></div>
+            </div>
+        </div>
+
+        <!-- ===== СТРАНИЦА «МАГАЗИН» (заглушка) ===== -->
+        <div class="page" id="page-shop">
+            <div class="page-content">
+                <div class="pet-name" style="font-size:24px;">🛒 Магазин</div>
+                <div class="message" style="margin-top:30px; font-size:18px;">🛍️ Скоро здесь будут товары для питомца!</div>
+            </div>
+        </div>
+
+        <!-- ===== СТРАНИЦА «ПРОФИЛЬ» (заглушка) ===== -->
+        <div class="page" id="page-profile">
+            <div class="page-content">
+                <div class="pet-name" style="font-size:24px;">👤 Профиль</div>
+                <div class="message" style="margin-top:30px; font-size:18px;">📊 Здесь будет статистика и достижения</div>
             </div>
         </div>
 
         <!-- ===== НИЖНЕЕ МЕНЮ ===== -->
         <div class="bottom-nav" id="bottomNav">
             <button class="nav-item active" data-page="page-pet">
-                <span class="icon">🐾</span>
-                <span>Питомец</span>
+                <span class="icon">🐾</span><span>Питомец</span>
             </button>
             <button class="nav-item" data-page="page-games">
-                <span class="icon">🎮</span>
-                <span>Игры</span>
+                <span class="icon">🎮</span><span>Игры</span>
             </button>
             <button class="nav-item" data-page="page-home">
-                <span class="icon">🏠</span>
-                <span>Дом</span>
+                <span class="icon">🏠</span><span>Дом</span>
             </button>
             <button class="nav-item" data-page="page-shop">
-                <span class="icon">🛒</span>
-                <span>Магазин</span>
+                <span class="icon">🛒</span><span>Магазин</span>
             </button>
             <button class="nav-item" data-page="page-profile">
-                <span class="icon">👤</span>
-                <span>Профиль</span>
+                <span class="icon">👤</span><span>Профиль</span>
             </button>
         </div>
     </div>
@@ -595,7 +330,7 @@
         let tg = window.Telegram.WebApp;
         let user_id = tg.initDataUnsafe?.user?.id;
 
-        // --- ВРЕМЕННЫЕ ДАННЫЕ (позже будут с сервера) ---
+        // --- ВРЕМЕННЫЕ ДАННЫЕ ---
         let petData = {
             pet_name: 'Хуйланчик',
             pet_type: 'кошка',
@@ -618,7 +353,7 @@
             "пингвин": "🐧"
         };
 
-        // --- ЗАГРУЗКА ДАННЫХ ПИТОМЦА ---
+        // --- ЗАГРУЗКА ДАННЫХ ---
         function loadPet() {
             if (!user_id) return;
             fetch(`/api/pet/${user_id}`)
@@ -647,12 +382,11 @@
             document.getElementById('disciplina').innerText = petData.дисциплина;
             document.getElementById('lapki').innerText = petData.лапки;
 
-            // Дом
             document.getElementById('homePetName').innerText = name;
             document.getElementById('homePetEmoji').innerText = emoji;
+            document.getElementById('homeStage').innerText = 'Стадия: ' + stage;
         }
 
-        // --- ДЕЙСТВИЯ (временные) ---
         function action(type) {
             showNotification('⏳ ...', false);
             fetch(`/api/${type}/${user_id}`, { method: 'POST' })
@@ -677,25 +411,32 @@
             }
         }
 
-        // --- НАВИГАЦИЯ ПО МЕНЮ ---
+        // --- НАВИГАЦИЯ ---
         document.querySelectorAll('.nav-item').forEach(btn => {
             btn.addEventListener('click', function() {
                 const pageId = this.dataset.page;
-                // Пока все страницы — заглушки, кроме питомца и дома
-                if (pageId === 'page-games' || pageId === 'page-shop' || pageId === 'page-profile') {
-                    showNotification('⏳ Эта страница в разработке', false);
-                    return;
-                }
                 document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
                 document.getElementById(pageId).classList.add('active');
                 document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
                 this.classList.add('active');
+                if (pageId === 'page-pet' || pageId === 'page-home') {
+                    loadPet();
+                }
             });
         });
+
+        // --- ИГРЫ (заглушка) ---
+        function startGame(game) {
+            const msg = document.getElementById('gameMessage');
+            if (msg) {
+                msg.innerText = `🎮 Игра "${game}" запущена! (скоро будет)`;
+                msg.style.color = '#b080ff';
+            }
+        }
 
         // --- ЗАПУСК ---
         tg.ready();
         loadPet();
     </script>
 </body>
-</html>
+                    </html>
