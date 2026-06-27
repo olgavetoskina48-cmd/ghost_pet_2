@@ -87,12 +87,11 @@
             font-size: 16px;
             outline: none;
         }
-        .game-result { margin-top: 12px; font-size: 16px; color: #b080ff; }
+        .game-result { margin-top: 12px; font-size: 16px; color: #b080ff; white-space: pre-line; }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Страница питомца -->
         <div id="mainPage" class="page active">
             <div class="pet-name" id="petName">Питомец</div>
             <span id="petEmoji" class="emoji">🐱</span>
@@ -119,7 +118,6 @@
             <div class="footer">призрачный питомец</div>
         </div>
 
-        <!-- Страница выбора игр -->
         <div id="gamesPage" class="page">
             <button class="back-btn" onclick="showMain()">← Назад</button>
             <div class="pet-name" style="font-size:20px;">🎮 Игры</div>
@@ -131,7 +129,6 @@
             <div id="gameMessage" class="message" style="margin-top:16px;"></div>
         </div>
 
-        <!-- Страница игры -->
         <div id="gamePage" class="page">
             <button class="back-btn" onclick="exitGame()">← Выйти</button>
             <div id="gameTitle" class="pet-name" style="font-size:20px;">Игра</div>
@@ -246,6 +243,7 @@
                 `;
             } else if (game === 'guess_easy' || game === 'guess_hard') {
                 const max = game === 'guess_easy' ? 10 : 100;
+                const mode = game === 'guess_easy' ? 'easy' : 'hard';
                 title.innerText = game === 'guess_easy' ? '🔢 Угадай (1–10)' : '🧠 Угадай (1–100)';
                 content.innerHTML = `
                     <div>Введи число от 1 до ${max}</div>
@@ -253,6 +251,17 @@
                     <button class="btn" onclick="guessNumber()" style="width:100%;">Проверить</button>
                     <div id="guessResult" class="game-result"></div>
                 `;
+                // Начинаем игру на сервере
+                fetch(`/api/start_guess/${user_id}/${mode}`, { method: 'POST' })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.error) {
+                            document.getElementById('guessResult').innerText = '❌ ' + data.error;
+                        }
+                    })
+                    .catch(() => {
+                        document.getElementById('guessResult').innerText = '❌ Ошибка запуска игры';
+                    });
             }
             showGame();
         }
