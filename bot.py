@@ -96,12 +96,6 @@ def create_pet(user_id, pet_type, pet_name="Питомец"):
         'энергия': 50,
         'дисциплина': 50,
         'дни': 0,
-        'одежда': 'без одежды',
-        'fav_color': random.choice(["красный", "синий", "зелёный", "жёлтый", "фиолетовый", "розовый", "оранжевый", "голубой"]),
-        'fav_time': random.choice(["утро", "день", "вечер", "ночь"]),
-        'fav_season': random.choice(["весна", "лето", "осень", "зима"]),
-        'fav_food': random.choice(["рыбка", "сосиски", "мороженое", "печенье", "мясо"]),
-        'fav_toy': random.choice(["мячик", "косточка", "мышка", "верёвка", "подушка"]),
         'лапки': 0,
         'daily_bonus': None,
         'games_played': 0,
@@ -149,15 +143,16 @@ def start(message):
     bot.send_message(message.chat.id, 
         "🐾 Приветик! Я твой призрачный питомец!\n"
         "Вот список команд, которые я могу тебе предложить!)\n\n"
-        "/newpet — завести питомца\n"
-        "/status — состояние питомца\n"
+        "/newpet — выбрать кем я буду\n"
+        "/status — мое состояние\n"
+        "/name — дай мне кличку\n"
         "/feed — покормить\n"
         "/play — поиграть\n"
         "/wash — помыть\n"
-        "/sleep — поспать\n"
+        "/sleep — уложить спать\n"
         "/train — тренировать\n"
         "/daily — ежедневный бонус\n"
-        "/app — открыть питомца\n"
+        "/app — посмотреть на меня\n"
         "/help — список команд"
     )
 
@@ -235,6 +230,27 @@ def daily_bonus(message):
     new_l = pet['лапки'] + 5
     update_pet(user_id, {'счастье': new_s, 'лапки': new_l, 'daily_bonus': today})
     bot.send_message(message.chat.id, f"🎁 Ежедневный бонус получен!\n{ATTR_EMOJIS['счастье']} Счастье +10\n{ATTR_EMOJIS['лапки']} Лапки +5")
+
+@bot.message_handler(commands=['name'])
+def set_name(message):
+    user_id = message.from_user.id
+    pet = get_pet(user_id)
+    if not pet:
+        bot.send_message(message.chat.id, "Сначала заведи питомца через /newpet")
+        return
+    bot.send_message(message.chat.id, "✏️ Напиши новое имя для своего питомца:")
+    user_states[user_id] = 'awaiting_name'
+
+@bot.message_handler(func=lambda message: user_states.get(message.from_user.id) == 'awaiting_name')
+def save_name(message):
+    user_id = message.from_user.id
+    name = message.text.strip()
+    if len(name) > 20:
+        bot.send_message(message.chat.id, "❌ Имя слишком длинное (максимум 20 символов)")
+        return
+    update_pet(user_id, {'pet_name': name})
+    user_states.pop(user_id, None)
+    bot.send_message(message.chat.id, f"✅ Отлично! Теперь твоего питомца зовут {name}!")
 
 @bot.message_handler(commands=['feed'])
 def feed(message):
@@ -382,27 +398,6 @@ def app_command(message):
         web_app=types.WebAppInfo(url="https://ghost-pet-webapp.onrender.com")
     ))
     bot.send_message(message.chat.id, "Нажми на кнопку, чтобы открыть питомца:", reply_markup=markup)
-
-@bot.message_handler(commands=['name'])
-def set_name(message):
-    user_id = message.from_user.id
-    pet = get_pet(user_id)
-    if not pet:
-        bot.send_message(message.chat.id, "Сначала заведи питомца через /newpet")
-        return
-    bot.send_message(message.chat.id, "✏️ Напиши новое имя для своего питомца:")
-    user_states[user_id] = 'awaiting_name'
-
-@bot.message_handler(func=lambda message: user_states.get(message.from_user.id) == 'awaiting_name')
-def save_name(message):
-    user_id = message.from_user.id
-    name = message.text.strip()
-    if len(name) > 20:
-        bot.send_message(message.chat.id, "❌ Имя слишком длинное (максимум 20 символов)")
-        return
-    update_pet(user_id, {'pet_name': name})
-    user_states.pop(user_id, None)
-    bot.send_message(message.chat.id, f"✅ Отлично! Теперь твоего питомца зовут {name}!")
 
 # --- ОБРАБОТЧИК СООБЩЕНИЙ (для подсчёта) ---
 @bot.message_handler(func=lambda message: True)
