@@ -68,7 +68,7 @@ def get_pet(user_id):
         return response.data[0]
     return None
 
-def create_pet(user_id, pet_type, pet_name="Серийчик"):
+def create_pet(user_id, pet_type, pet_name="Питомец"):
     supabase.table('pets').insert({
         'user_id': user_id,
         'pet_type': pet_type,
@@ -243,7 +243,6 @@ def play(message):
     new_s = min(100, pet['счастье'] + 15)
     new_h = max(0, pet['голод'] - 2)
     new_e = max(0, pet['энергия'] - 10)
-    # Штраф за 3 игры подряд
     series = pet.get('games_series', 0) + 1
     if series >= 3:
         new_h = max(0, new_h - 5)
@@ -364,7 +363,7 @@ def guess_game(message):
 def app_command(message):
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton(
-        text="🐾 Открыть Серийчика",
+        text="🐾 Открыть питомца",
         web_app=types.WebAppInfo(url="https://ghost_pet_2.onrender.com")
     ))
     bot.send_message(message.chat.id, "Нажми на кнопку, чтобы открыть питомца:", reply_markup=markup)
@@ -406,5 +405,5 @@ def handle_messages(message):
 
 # --- ЗАПУСК ---
 if __name__ == '__main__':
-    print("✅ Бот Серийчик запущен!")
+    print("✅ Бот Питомец запущен!")
     bot.polling(none_stop=True)
