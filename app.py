@@ -2,7 +2,6 @@ from flask import Flask, send_from_directory, request, jsonify
 from supabase import create_client
 import os
 import random
-import requests
 
 app = Flask(__name__, static_folder='webapp')
 
@@ -11,33 +10,13 @@ SUPABASE_URL = "https://jzscsndwuchzlellgqea.supabase.co"
 SUPABASE_KEY = "sb_publishable_-kqOsr7gFZRi8ctCNPaLgg_4mjU-NZy"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# --- ТОКЕН БОТА ---
+# --- ТОКЕН ---
 TOKEN = "8869752953:AAF2gOnS-bFts-EGsS1PZZ4pfUrRXLwkN-M"
-
-# --- ЭМОДЗИ ---
-PET_EMOJIS = {
-    "кошка": "🐱",
-    "собака": "🐶",
-    "лиса": "🦊",
-    "панда": "🐼",
-    "кролик": "🐇",
-    "ёжик": "🦔",
-    "пингвин": "🐧"
-}
-
-ATTR_EMOJIS = {
-    "голод": "🥩",
-    "счастье": "🍽",
-    "гигиена": "🫧",
-    "энергия": "⚡",
-    "дисциплина": "📏",
-    "лапки": "🐾"
-}
 
 # --- Хранилище для игр ---
 game_data = {}
 
-# --- API ---
+# --- БАЗА ---
 def get_pet(user_id):
     response = supabase.table('pets').select('*').eq('user_id', user_id).execute()
     if response.data:
@@ -47,18 +26,7 @@ def get_pet(user_id):
 def update_pet(user_id, data):
     supabase.table('pets').update(data).eq('user_id', user_id).execute()
 
-def get_stage(messages):
-    if messages < 100:
-        return "Зарождение ✨"
-    elif messages < 251:
-        return "Яйцо 🥚"
-    elif messages < 501:
-        return "Малыш 🐣"
-    elif messages < 1001:
-        return "Подросток 🧒"
-    else:
-        return "Взрослый 🧑"
-
+# --- API ПИТОМЦА ---
 @app.route('/api/pet/<int:user_id>')
 def api_pet(user_id):
     pet = get_pet(user_id)
@@ -117,19 +85,17 @@ def api_train(user_id):
     update_pet(user_id, {'дисциплина': new_val})
     return jsonify({'дисциплина': new_val, 'message': 'Тренировка! +15'})
 
+# --- API ИГР ---
 @app.route('/api/dice/<int:user_id>', methods=['POST'])
 def api_dice(user_id):
     pet = get_pet(user_id)
     if not pet:
         return jsonify({'error': 'Нет питомца'}), 404
-    
     user_roll = random.randint(1, 6)
     bot_roll = random.randint(1, 6)
-    
     win = user_roll > bot_roll
     lose = user_roll < bot_roll
     draw = user_roll == bot_roll
-    
     bonus = 0
     if win:
         series = pet.get('games_series', 0) + 1
@@ -137,7 +103,6 @@ def api_dice(user_id):
         update_pet(user_id, {'лапки': pet['лапки'] + bonus, 'games_series': series})
     elif lose:
         update_pet(user_id, {'games_series': 0})
-    
     return jsonify({
         'user_roll': user_roll,
         'bot_roll': bot_roll,
@@ -154,24 +119,19 @@ def api_guess(user_id):
     pet = get_pet(user_id)
     if not pet:
         return jsonify({'error': 'Нет питомца'}), 404
-    
     game = game_data.get(user_id)
     if not game:
         return jsonify({'error': 'Игра не начата'}), 400
-    
     game['attempts'] += 1
     number = game['number']
-    
     if guess == number:
         bonus = 25 if game['type'] == 'hard' else 5
         update_pet(user_id, {'лапки': pet['лапки'] + bonus})
         game_data.pop(user_id, None)
         return jsonify({'win': True, 'bonus': bonus})
-    
     if game['attempts'] >= game['max_attempts']:
         game_data.pop(user_id, None)
         return jsonify({'lose': True, 'number': number})
-    
     hint = 'больше' if guess < number else 'меньше'
     return jsonify({
         'win': False,
@@ -185,14 +145,12 @@ def api_start_guess(user_id, mode):
     pet = get_pet(user_id)
     if not pet:
         return jsonify({'error': 'Нет питомца'}), 404
-    
     if mode == 'easy':
         number = random.randint(1, 10)
         max_attempts = 3
     else:
         number = random.randint(1, 100)
         max_attempts = 10
-    
     game_data[user_id] = {
         'type': mode,
         'number': number,
