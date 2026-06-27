@@ -322,21 +322,30 @@ def app_command(message):
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton(
         text="🐾 Открыть питомца",
-        web_app=types.WebAppInfo(url="https://ghost-pet.onrender.com")
+        web_app=types.WebAppInfo(url="https://ghost-pet-webapp.onrender.com")
     ))
     bot.send_message(message.chat.id, "Нажми на кнопку, чтобы открыть питомца:", reply_markup=markup)
 
-# --- ОБРАБОТЧИКИ ИГР ИЗ MINI APP ---
-@bot.message_handler(func=lambda message: message.text and '#dice' in message.text)
-def handle_dice_request(message):
+# --- ОБРАБОТЧИК ДЛЯ ИГРЫ В КОСТИ (по эмодзи кубика) ---
+@bot.message_handler(func=lambda message: message.text and '🎲' in message.text)
+def handle_dice_emoji(message):
     user_id = message.from_user.id
     pet = get_pet(user_id)
     if not pet:
         bot.send_message(message.chat.id, "Сначала заведи питомца через /newpet")
         return
+    
+    # Кидаем кубики
     user_roll = random.randint(1, 6)
     bot_roll = random.randint(1, 6)
-    text = f"🎲 Ты выбросил: {user_roll}\n🎲 Я выбросил: {bot_roll}\n"
+    
+    dice_emojis = {1: '⚀', 2: '⚁', 3: '⚂', 4: '⚃', 5: '⚄', 6: '⚅'}
+    
+    text = (
+        f"🎲 Ты выбросил: {dice_emojis[user_roll]} ({user_roll})\n"
+        f"🎲 Я выбросил: {dice_emojis[bot_roll]} ({bot_roll})\n"
+    )
+    
     if user_roll > bot_roll:
         series = pet.get('games_series', 0) + 1
         win_bonus = 5 * series
@@ -347,38 +356,19 @@ def handle_dice_request(message):
         update_pet(user_id, {'games_series': 0})
     else:
         text += "🤝 Ничья! Никто не получил лапок."
+    
     bot.send_message(message.chat.id, text)
 
-@bot.message_handler(func=lambda message: message.text and '#guess_easy' in message.text)
-def handle_guess_easy_request(message):
+# --- ОБРАБОТЧИК ДЛЯ УГАДАЙ ЧИСЛО (по числу) ---
+@bot.message_handler(func=lambda message: message.text and message.text.isdigit() and message.from_user.id in game_data)
+def handle_guess_number(message):
     user_id = message.from_user.id
-    pet = get_pet(user_id)
-    if not pet:
-        bot.send_message(message.chat.id, "Сначала заведи питомца через /newpet")
-        return
-    number = random.randint(1, 10)
-    game_data[user_id] = {'type': 'easy', 'number': number, 'attempts': 0, 'max_attempts': 3}
-    bot.send_message(message.chat.id, "🔢 Я загадал число от 1 до 10. У тебя 3 попытки! Напиши число.")
-
-@bot.message_handler(func=lambda message: message.text and '#guess_hard' in message.text)
-def handle_guess_hard_request(message):
-    user_id = message.from_user.id
-    pet = get_pet(user_id)
-    if not pet:
-        bot.send_message(message.chat.id, "Сначала заведи питомца через /newpet")
-        return
-    number = random.randint(1, 100)
-    game_data[user_id] = {'type': 'hard', 'number': number, 'attempts': 0, 'max_attempts': 10}
-    bot.send_message(message.chat.id, "🧠 Я загадал число от 1 до 100. У тебя 10 попыток! Напиши число.")
-
-# --- ОБРАБОТЧИК ОТВЕТОВ ДЛЯ ИГР ---
-@bot.message_handler(func=lambda message: message.from_user.id in game_data and message.text.isdigit())
-def guess_game(message):
-    user_id = message.from_user.id
+    game = game_data[user_id]
+    
     try:
         guess = int(message.text)
-        game = game_data[user_id]
         game['attempts'] += 1
+        
         if guess == game['number']:
             if game['type'] == 'easy':
                 update_pet(user_id, {'лапки': get_pet(user_id)['лапки'] + 5})
@@ -388,19 +378,45 @@ def guess_game(message):
                 bot.send_message(message.chat.id, "🎉 Ты угадал! +25 лапок!")
             game_data.pop(user_id, None)
             return
-        elif guess < game['number']:
+        
+        if guess < game['number']:
             msg = "📈 Загаданное число больше"
         else:
             msg = "📉 Загаданное число меньше"
+        
         if game['attempts'] >= game['max_attempts']:
             bot.send_message(message.chat.id, f"❌ Ты не угадал! Загаданное число было {game['number']}.")
             game_data.pop(user_id, None)
             return
+        
         bot.send_message(message.chat.id, f"{msg}. Осталось попыток: {game['max_attempts'] - game['attempts']}")
     except:
         pass
 
-# --- ОБРАБОТЧИК СООБЩЕНИЙ ---
+# --- ЗАПУСК ИГРЫ "УГАДАЙ ЧИСЛО" (через команды) ---
+@bot.message_handler(commands=['guess_easy'])
+def guess_easy(message):
+    user_id = message.from_user.id
+    pet = get_pet(user_id)
+    if not pet:
+        bot.send_message(message.chat.id, "Сначала заведи питомца через /newpet")
+        return
+    number = random.randint(1, 10)
+    game_data[user_id] = {'type': 'easy', 'number': number, 'attempts': 0, 'max_attempts': 3}
+    bot.send_message(message.chat.id, "🔢 Я загадал число от 1 до 10. У тебя 3 попытки! Напиши число.")
+
+@bot.message_handler(commands=['guess_hard'])
+def guess_hard(message):
+    user_id = message.from_user.id
+    pet = get_pet(user_id)
+    if not pet:
+        bot.send_message(message.chat.id, "Сначала заведи питомца через /newpet")
+        return
+    number = random.randint(1, 100)
+    game_data[user_id] = {'type': 'hard', 'number': number, 'attempts': 0, 'max_attempts': 10}
+    bot.send_message(message.chat.id, "🧠 Я загадал число от 1 до 100. У тебя 10 попыток! Напиши число.")
+
+# --- ОБРАБОТЧИК СООБЩЕНИЙ (для подсчёта) ---
 @bot.message_handler(func=lambda message: True)
 def handle_messages(message):
     if message.text and message.text.startswith('/'):
