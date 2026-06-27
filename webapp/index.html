@@ -19,7 +19,7 @@
             background: #1a1a24;
             border-radius: 32px;
             padding: 18px 14px 26px;
-            max-width: 440px;
+            max-width: 420px;
             width: 100%;
             min-height: 96vh;
             box-shadow: 0 8px 32px rgba(124, 92, 191, 0.3);
@@ -30,7 +30,7 @@
             justify-content: space-between;
         }
         .pet-name {
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 700;
             color: #e0d7ff;
             margin-bottom: 2px;
@@ -42,7 +42,7 @@
             line-height: 1.1;
         }
         .stage {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 600;
             color: #a8a0c2;
             margin-bottom: 6px;
@@ -50,55 +50,54 @@
         .stats {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px 14px;
+            gap: 6px 12px;
             background: #23213a;
-            border-radius: 18px;
-            padding: 18px 20px;
-            margin: 10px 0 18px;
-            font-size: 18px;
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin: 10px 0 16px;
+            font-size: 16px;
             text-align: left;
             color: #c8c0e0;
         }
-        .stats b {
-            color: #e0d7ff;
-        }
+        .stats b { color: #e0d7ff; }
         .btn-group {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 6px;
             justify-content: center;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
         }
         .btn {
             background: #7c5cbf;
             color: white;
             border: none;
             border-radius: 40px;
-            padding: 14px 22px;
-            font-size: 20px;
+            padding: 8px 12px;
+            font-size: 16px;
             font-weight: 500;
             cursor: pointer;
             flex: 1 0 auto;
-            min-width: 60px;
+            min-width: 48px;
             transition: 0.2s;
-            box-shadow: 0 0 16px rgba(124, 92, 191, 0.3);
+            box-shadow: 0 0 12px rgba(124, 92, 191, 0.25);
         }
         .btn:active { transform: scale(0.95); }
         .btn-green { background: #4a9b7c; }
         .btn-blue { background: #4a7c9b; }
         .btn-orange { background: #b08a4a; color: #e0d7ff; }
         .btn-pink { background: #bf5c8a; }
-        .btn-game { background: #6c4a8b; }
+        .btn-game { background: #6c4a8b; flex: 1; padding: 10px 16px; font-size: 18px; }
+        .btn-restart { background: #4a7c9b; flex: 1; padding: 10px 16px; font-size: 18px; }
 
         .message {
-            margin-top: 10px;
-            font-size: 16px;
+            margin-top: 8px;
+            font-size: 15px;
             color: #b080ff;
-            min-height: 24px;
+            min-height: 22px;
         }
         .footer {
-            margin-top: 12px;
-            font-size: 14px;
+            margin-top: 10px;
+            font-size: 13px;
             color: #5a507a;
         }
         .page { display: none; }
@@ -108,10 +107,10 @@
             color: white;
             border: none;
             border-radius: 40px;
-            padding: 12px 20px;
-            font-size: 17px;
+            padding: 10px 16px;
+            font-size: 15px;
             cursor: pointer;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
             width: fit-content;
         }
         .back-btn:active { transform: scale(0.95); }
@@ -119,18 +118,23 @@
             background: #23213a;
             border: 1px solid #3c3a5c;
             color: #e0d7ff;
-            padding: 14px;
+            padding: 12px;
             border-radius: 40px;
             width: 80%;
-            margin: 10px 0;
-            font-size: 20px;
+            margin: 8px 0;
+            font-size: 18px;
             outline: none;
         }
         .game-result {
-            margin-top: 16px;
-            font-size: 20px;
+            margin-top: 14px;
+            font-size: 18px;
             color: #b080ff;
             white-space: pre-line;
+        }
+        .btn-group-restart {
+            margin-top: 12px;
+            display: flex;
+            justify-content: center;
         }
     </style>
 </head>
@@ -164,19 +168,19 @@
 
         <div id="gamesPage" class="page">
             <button class="back-btn" onclick="showMain()">← Назад</button>
-            <div class="pet-name" style="font-size:24px;">🎮 Игры</div>
-            <div style="margin-top:20px; display:flex; flex-direction:column; gap:14px;">
-                <button class="btn" onclick="startGame('dice')" style="width:100%; font-size:22px;">🎲 Кости</button>
-                <button class="btn" onclick="startGame('guess_easy')" style="width:100%; font-size:22px;">🔢 Угадай число (1–10)</button>
-                <button class="btn" onclick="startGame('guess_hard')" style="width:100%; font-size:22px;">🧠 Угадай число (1–100)</button>
+            <div class="pet-name" style="font-size:22px;">🎮 Игры</div>
+            <div style="margin-top:20px; display:flex; flex-direction:column; gap:12px;">
+                <button class="btn btn-game" onclick="startGame('dice')" style="width:100%;">🎲 Кости</button>
+                <button class="btn btn-game" onclick="startGame('guess_easy')" style="width:100%;">🔢 Угадай число (1–10)</button>
+                <button class="btn btn-game" onclick="startGame('guess_hard')" style="width:100%;">🧠 Угадай число (1–100)</button>
             </div>
             <div id="gameMessage" class="message" style="margin-top:20px;"></div>
         </div>
 
         <div id="gamePage" class="page">
             <button class="back-btn" onclick="exitGame()">← Выйти</button>
-            <div id="gameTitle" class="pet-name" style="font-size:24px;">Игра</div>
-            <div id="gameContent" style="margin-top:20px;"></div>
+            <div id="gameTitle" class="pet-name" style="font-size:22px;">Игра</div>
+            <div id="gameContent" style="margin-top:16px;"></div>
         </div>
     </div>
 
@@ -282,7 +286,7 @@
             if (game === 'dice') {
                 title.innerText = '🎲 Кости';
                 content.innerHTML = `
-                    <button class="btn" onclick="diceRoll()" style="width:100%;">Кинуть кубик</button>
+                    <button class="btn btn-game" onclick="diceRoll()" style="width:100%;">Кинуть кубик</button>
                     <div id="diceResult" class="game-result"></div>
                 `;
             } else if (game === 'guess_easy' || game === 'guess_hard') {
@@ -292,7 +296,7 @@
                 content.innerHTML = `
                     <div style="font-size:18px;">Введи число от 1 до ${max}</div>
                     <input type="number" id="guessInput" min="1" max="${max}">
-                    <button class="btn" onclick="guessNumber()" style="width:100%;">Проверить</button>
+                    <button class="btn btn-game" onclick="guessNumber()" style="width:100%;">Проверить</button>
                     <div id="guessResult" class="game-result"></div>
                 `;
                 fetch(`/api/start_guess/${user_id}/${mode}`, { method: 'POST' })
@@ -321,6 +325,7 @@
                     else if (data.lose) text += '\n❌ Ты проиграл! Ничего не заработал.';
                     else text += '\n🤝 Ничья! Никто не получил лапок.';
                     result.innerText = text;
+                    result.innerHTML += '<div class="btn-group-restart"><button class="btn btn-restart" onclick="restartGame(\'dice\')">🎲 Играть снова</button></div>';
                     loadPet();
                 })
                 .catch(() => {
@@ -346,9 +351,11 @@
                 const result = document.getElementById('guessResult');
                 if (data.win) {
                     result.innerText = `🎉 Ты угадал! +${data.bonus} лапок!`;
+                    result.innerHTML += '<div class="btn-group-restart"><button class="btn btn-restart" onclick="restartGame(\'' + currentGame + '\')">🔢 Играть снова</button></div>';
                     loadPet();
                 } else if (data.lose) {
                     result.innerText = `❌ Ты не угадал! Загаданное число было ${data.number}.`;
+                    result.innerHTML += '<div class="btn-group-restart"><button class="btn btn-restart" onclick="restartGame(\'' + currentGame + '\')">🔢 Играть снова</button></div>';
                     loadPet();
                 } else {
                     const emoji = data.hint === 'больше' ? '📈' : '📉';
@@ -359,6 +366,12 @@
             .catch(() => {
                 document.getElementById('guessResult').innerText = '❌ Ошибка';
             });
+        }
+
+        function restartGame(game) {
+            document.getElementById('diceResult').innerHTML = '';
+            document.getElementById('guessResult').innerHTML = '';
+            startGame(game);
         }
 
         tg.ready();
