@@ -318,8 +318,18 @@ def train(message):
     sound = random.choice(SOUNDS.get(pet['pet_type'], ["мяу"]))
     bot.send_message(message.chat.id, f"⚡ Тренировка! Дисциплина +15\n{sound}!")
 
-@bot.message_handler(commands=['dice'])
-def dice_game(message):
+@bot.message_handler(commands=['app'])
+def app_command(message):
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton(
+        text="🐾 Открыть питомца",
+        web_app=types.WebAppInfo(url="https://ghost-pet-webapp.onrender.com")
+    ))
+    bot.send_message(message.chat.id, "Нажми на кнопку, чтобы открыть питомца:", reply_markup=markup)
+
+# --- ОБРАБОТЧИКИ ИГР ИЗ MINI APP ---
+@bot.message_handler(func=lambda message: message.text and '#dice' in message.text)
+def handle_dice_request(message):
     user_id = message.from_user.id
     pet = get_pet(user_id)
     if not pet:
@@ -340,8 +350,8 @@ def dice_game(message):
         text += "🤝 Ничья! Никто не получил лапок."
     bot.send_message(message.chat.id, text)
 
-@bot.message_handler(commands=['guess_easy'])
-def guess_easy(message):
+@bot.message_handler(func=lambda message: message.text and '#guess_easy' in message.text)
+def handle_guess_easy_request(message):
     user_id = message.from_user.id
     pet = get_pet(user_id)
     if not pet:
@@ -351,8 +361,8 @@ def guess_easy(message):
     game_data[user_id] = {'type': 'easy', 'number': number, 'attempts': 0, 'max_attempts': 3}
     bot.send_message(message.chat.id, "🔢 Я загадал число от 1 до 10. У тебя 3 попытки! Напиши число.")
 
-@bot.message_handler(commands=['guess_hard'])
-def guess_hard(message):
+@bot.message_handler(func=lambda message: message.text and '#guess_hard' in message.text)
+def handle_guess_hard_request(message):
     user_id = message.from_user.id
     pet = get_pet(user_id)
     if not pet:
@@ -362,6 +372,7 @@ def guess_hard(message):
     game_data[user_id] = {'type': 'hard', 'number': number, 'attempts': 0, 'max_attempts': 10}
     bot.send_message(message.chat.id, "🧠 Я загадал число от 1 до 100. У тебя 10 попыток! Напиши число.")
 
+# --- ОБРАБОТЧИК ОТВЕТОВ ДЛЯ ИГР ---
 @bot.message_handler(func=lambda message: message.from_user.id in game_data and message.text.isdigit())
 def guess_game(message):
     user_id = message.from_user.id
@@ -389,15 +400,6 @@ def guess_game(message):
         bot.send_message(message.chat.id, f"{msg}. Осталось попыток: {game['max_attempts'] - game['attempts']}")
     except:
         pass
-
-@bot.message_handler(commands=['app'])
-def app_command(message):
-    markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton(
-        text="🐾 Открыть питомца",
-        web_app=types.WebAppInfo(url="https://ghost-pet-webapp.onrender.com")
-    ))
-    bot.send_message(message.chat.id, "Нажми на кнопку, чтобы открыть питомца:", reply_markup=markup)
 
 # --- ОБРАБОТЧИК СООБЩЕНИЙ (для подсчёта) ---
 @bot.message_handler(func=lambda message: True)
