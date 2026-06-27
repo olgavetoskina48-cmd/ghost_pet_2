@@ -6,14 +6,14 @@ import threading
 from datetime import datetime, date
 from telebot import TeleBot, types
 from supabase import create_client
-from flask import Flask
+from flask import Flask, send_from_directory
 
 # --- FLASK ДЛЯ ПОРТА ---
-flask_app = Flask(__name__)
+flask_app = Flask(__name__, static_folder='webapp')
 
 @flask_app.route('/')
 def home():
-    return "Бот работает!"
+    return send_from_directory('webapp', 'index.html')
 
 @flask_app.route('/ping')
 def ping():
@@ -74,6 +74,7 @@ ACHIEVEMENTS = [
 # --- СОСТОЯНИЯ ---
 user_states = {}
 game_data = {}
+game_dice = {}  # для игры в кости
 
 # --- БАЗА ДАННЫХ ---
 def get_pet(user_id):
@@ -326,9 +327,21 @@ def app_command(message):
     ))
     bot.send_message(message.chat.id, "Нажми на кнопку, чтобы открыть питомца:", reply_markup=markup)
 
-# --- ОБРАБОТЧИК ДЛЯ ИГРЫ В КОСТИ (по эмодзи кубика) ---
-@bot.message_handler(func=lambda message: message.text and '🎲' in message.text)
-def handle_dice_emoji(message):
+# --- ИГРЫ ---
+
+# Кости
+@bot.message_handler(func=lambda message: message.text and 'Скинь мне кубик!' in message.text)
+def start_dice_game(message):
+    user_id = message.from_user.id
+    pet = get_pet(user_id)
+    if not pet:
+        bot.send_message(message.chat.id, "Сначала заведи питомца через /newpet")
+        return
+    game_dice[user_id] = None
+    bot.send_message(message.chat.id, "🎲 Кидай кубик! Напиши 🎲")
+
+@bot.message_handler(func=lambda message: message.text and '🎲' in message.text and message.from_user.id in game_dice)
+def handle_dice_roll(message):
     user_id = message.from_user.id
     pet = get_pet(user_id)
     if not pet:
@@ -337,7 +350,6 @@ def handle_dice_emoji(message):
     
     user_roll = random.randint(1, 6)
     bot_roll = random.randint(1, 6)
-    
     dice_emojis = {1: '⚀', 2: '⚁', 3: '⚂', 4: '⚃', 5: '⚄', 6: '⚅'}
     
     text = (
@@ -356,9 +368,10 @@ def handle_dice_emoji(message):
     else:
         text += "🤝 Ничья! Никто не получил лапок."
     
+    game_dice.pop(user_id, None)
     bot.send_message(message.chat.id, text)
 
-# --- ОБРАБОТЧИК ДЛЯ УГАДАЙ ЧИСЛО (по числу) ---
+# Угадай число
 @bot.message_handler(func=lambda message: message.text and message.text.isdigit() and message.from_user.id in game_data)
 def handle_guess_number(message):
     user_id = message.from_user.id
@@ -392,9 +405,8 @@ def handle_guess_number(message):
     except:
         pass
 
-# --- ЗАПУСК ИГРЫ "УГАДАЙ ЧИСЛО" (через команды) ---
-@bot.message_handler(commands=['guess_easy'])
-def guess_easy(message):
+@bot.message_handler(func=lambda message: message.text and '🔢 Напиши число от 1 до 10' in message.text)
+def start_guess_easy(message):
     user_id = message.from_user.id
     pet = get_pet(user_id)
     if not pet:
@@ -404,8 +416,8 @@ def guess_easy(message):
     game_data[user_id] = {'type': 'easy', 'number': number, 'attempts': 0, 'max_attempts': 3}
     bot.send_message(message.chat.id, "🔢 Я загадал число от 1 до 10. У тебя 3 попытки! Напиши число.")
 
-@bot.message_handler(commands=['guess_hard'])
-def guess_hard(message):
+@bot.message_handler(func=lambda message: message.text and '🧠 Напиши число от 1 до 100' in message.text)
+def start_guess_hard(message):
     user_id = message.from_user.id
     pet = get_pet(user_id)
     if not pet:
