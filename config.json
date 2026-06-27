@@ -1,0 +1,6 @@
+{
+  "bot": {
+    "source": "https://github.com/olgavetoskina48-cmd/ghost_pet_2.git",
+    "run": "bot.py"
+  }
+}
