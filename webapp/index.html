@@ -49,7 +49,7 @@
             display: flex;
         }
 
-        /* ----- СТРАНИЦА «ПИТОМЕЦ» (задний фон) ----- */
+        /* ----- ФОНЫ ----- */
         #page-pet {
             background: #0d071a;
             position: relative;
@@ -65,7 +65,6 @@
             opacity: 0.85;
         }
 
-        /* ----- СТРАНИЦА «ДОМ» (комната) ----- */
         #page-home {
             background: #0d071a;
             position: relative;
@@ -81,7 +80,7 @@
             opacity: 0.9;
         }
 
-        /* ----- КОНТЕНТ ПОВЕРХ ФОНА ----- */
+        /* ----- КОНТЕНТ ----- */
         .page-content {
             position: relative;
             z-index: 10;
@@ -207,7 +206,7 @@
             filter: drop-shadow(0 0 12px rgba(124, 92, 191, 0.6));
         }
 
-        /* ----- СТРАНИЦА ИГР (заглушка) ----- */
+        /* ----- СТРАНИЦА ИГР ----- */
         .games-list {
             display: flex;
             flex-direction: column;
@@ -219,6 +218,34 @@
             padding: 12px;
             font-size: 18px;
             text-align: center;
+        }
+
+        /* ----- СТРАНИЦА ИГРЫ (окно) ----- */
+        #gamePage .game-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        #gamePage input {
+            background: rgba(35, 33, 58, 0.85);
+            border: 1px solid #3c3a5c;
+            color: #e0d7ff;
+            padding: 12px;
+            border-radius: 40px;
+            width: 80%;
+            font-size: 18px;
+            outline: none;
+            text-align: center;
+        }
+        .game-result {
+            font-size: 18px;
+            color: #b080ff;
+            white-space: pre-line;
+            text-align: center;
+            margin-top: 8px;
         }
 
         /* ----- СКРОЛЛ ----- */
@@ -276,16 +303,25 @@
             </div>
         </div>
 
-        <!-- ===== СТРАНИЦА «ИГРЫ» (заглушка) ===== -->
+        <!-- ===== СТРАНИЦА «ИГРЫ» ===== -->
         <div class="page" id="page-games">
             <div class="page-content">
                 <div class="pet-name" style="font-size:24px;">🎮 Игры</div>
                 <div class="games-list">
-                    <button class="btn btn-game" onclick="startGame('dice')">🎲 Кости</button>
-                    <button class="btn btn-game" onclick="startGame('guess_easy')">🔢 Угадай (1–10)</button>
-                    <button class="btn btn-game" onclick="startGame('guess_hard')">🧠 Угадай (1–100)</button>
+                    <button class="btn btn-game" onclick="openGame('dice')">🎲 Кости</button>
+                    <button class="btn btn-game" onclick="openGame('guess_easy')">🔢 Угадай (1–10)</button>
+                    <button class="btn btn-game" onclick="openGame('guess_hard')">🧠 Угадай (1–100)</button>
                 </div>
                 <div id="gameMessage" class="message" style="margin-top:20px;"></div>
+            </div>
+        </div>
+
+        <!-- ===== СТРАНИЦА ИГРЫ (окно) ===== -->
+        <div class="page" id="gamePage">
+            <div class="page-content">
+                <button class="btn" onclick="closeGame()" style="margin-bottom:12px; align-self:flex-start; padding:8px 16px; font-size:14px;">← Назад</button>
+                <div id="gameTitle" class="pet-name" style="font-size:22px;">Игра</div>
+                <div class="game-content" id="gameContent"></div>
             </div>
         </div>
 
@@ -330,19 +366,8 @@
         let tg = window.Telegram.WebApp;
         let user_id = tg.initDataUnsafe?.user?.id;
 
-        // --- ВРЕМЕННЫЕ ДАННЫЕ ---
-        let petData = {
-            pet_name: 'Хуйланчик',
-            pet_type: 'кошка',
-            stage: 'Зарождение ✨',
-            голод: 50,
-            счастье: 50,
-            гигиена: 50,
-            энергия: 50,
-            дисциплина: 50,
-            лапки: 164
-        };
-
+        // --- ДАННЫЕ ПИТОМЦА ---
+        let petData = {};
         const petEmojis = {
             "кошка": "🐱",
             "собака": "🐶",
@@ -353,7 +378,7 @@
             "пингвин": "🐧"
         };
 
-        // --- ЗАГРУЗКА ДАННЫХ ---
+        // --- ЗАГРУЗКА ПИТОМЦА ---
         function loadPet() {
             if (!user_id) return;
             fetch(`/api/pet/${user_id}`)
@@ -425,13 +450,107 @@
             });
         });
 
-        // --- ИГРЫ (заглушка) ---
-        function startGame(game) {
-            const msg = document.getElementById('gameMessage');
-            if (msg) {
-                msg.innerText = `🎮 Игра "${game}" запущена! (скоро будет)`;
-                msg.style.color = '#b080ff';
+        // --- ИГРЫ ---
+        let currentGame = null;
+
+        function openGame(game) {
+            currentGame = game;
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('gamePage').classList.add('active');
+
+            const title = document.getElementById('gameTitle');
+            const content = document.getElementById('gameContent');
+
+            if (game === 'dice') {
+                title.innerText = '🎲 Кости';
+                content.innerHTML = `
+                    <button class="btn btn-game" onclick="diceRoll()" style="width:100%;">Кинуть кубик</button>
+                    <div id="diceResult" class="game-result"></div>
+                `;
+            } else if (game === 'guess_easy' || game === 'guess_hard') {
+                const max = game === 'guess_easy' ? 10 : 100;
+                const mode = game === 'guess_easy' ? 'easy' : 'hard';
+                title.innerText = game === 'guess_easy' ? '🔢 Угадай (1–10)' : '🧠 Угадай (1–100)';
+                content.innerHTML = `
+                    <div style="font-size:18px; color:#a8a0c2;">Введи число от 1 до ${max}</div>
+                    <input type="number" id="guessInput" min="1" max="${max}">
+                    <button class="btn btn-game" onclick="guessNumber()" style="width:100%;">Проверить</button>
+                    <div id="guessResult" class="game-result"></div>
+                `;
+                fetch(`/api/start_guess/${user_id}/${mode}`, { method: 'POST' })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.error) {
+                            document.getElementById('guessResult').innerText = '❌ ' + data.error;
+                        }
+                    })
+                    .catch(() => {
+                        document.getElementById('guessResult').innerText = '❌ Ошибка запуска игры';
+                    });
             }
+        }
+
+        function closeGame() {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-games').classList.add('active');
+        }
+
+        function diceRoll() {
+            if (!user_id) return;
+            fetch(`/api/dice/${user_id}`, { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    const result = document.getElementById('diceResult');
+                    const emojis = {1: '⚀', 2: '⚁', 3: '⚂', 4: '⚃', 5: '⚄', 6: '⚅'};
+                    let text = `🎲 Ты: ${emojis[data.user_roll]} (${data.user_roll})\n🎲 Бот: ${emojis[data.bot_roll]} (${data.bot_roll})`;
+                    if (data.win) text += `\n✅ Ты выиграл! +${data.bonus} лапок!`;
+                    else if (data.lose) text += '\n❌ Ты проиграл! Ничего не заработал.';
+                    else text += '\n🤝 Ничья! Никто не получил лапок.';
+                    result.innerHTML = text + '<div class="btn-group-restart" style="margin-top:12px;"><button class="btn btn-restart" onclick="restartGame(\'dice\')">🎲 Играть снова</button></div>';
+                    loadPet();
+                })
+                .catch(() => {
+                    document.getElementById('diceResult').innerText = '❌ Ошибка';
+                });
+        }
+
+        function guessNumber() {
+            if (!user_id) return;
+            const input = document.getElementById('guessInput');
+            const guess = parseInt(input.value);
+            if (isNaN(guess)) {
+                document.getElementById('guessResult').innerText = '❌ Введи число!';
+                return;
+            }
+            fetch(`/api/guess/${user_id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ guess: guess })
+            })
+            .then(res => res.json())
+            .then(data => {
+                const result = document.getElementById('guessResult');
+                if (data.win) {
+                    result.innerHTML = `🎉 Ты угадал! +${data.bonus} лапок!<div class="btn-group-restart" style="margin-top:12px;"><button class="btn btn-restart" onclick="restartGame('${currentGame}')">🔢 Играть снова</button></div>`;
+                    loadPet();
+                } else if (data.lose) {
+                    result.innerHTML = `❌ Ты не угадал! Загаданное число было ${data.number}.<div class="btn-group-restart" style="margin-top:12px;"><button class="btn btn-restart" onclick="restartGame('${currentGame}')">🔢 Играть снова</button></div>`;
+                    loadPet();
+                } else {
+                    const emoji = data.hint === 'больше' ? '📈' : '📉';
+                    result.innerText = `${emoji} Загаданное число ${data.hint}. Осталось попыток: ${data.attempts_left}`;
+                }
+                input.value = '';
+            })
+            .catch(() => {
+                document.getElementById('guessResult').innerText = '❌ Ошибка';
+            });
+        }
+
+        function restartGame(game) {
+            document.getElementById('diceResult').innerHTML = '';
+            document.getElementById('guessResult').innerHTML = '';
+            openGame(game);
         }
 
         // --- ЗАПУСК ---
@@ -439,4 +558,4 @@
         loadPet();
     </script>
 </body>
-                    </html>
+    </html>
