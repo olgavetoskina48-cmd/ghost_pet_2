@@ -1,6 +1,7 @@
 from flask import Flask, send_from_directory, request, jsonify
 from supabase import create_client
 import os
+import requests
 
 app = Flask(__name__, static_folder='webapp')
 
@@ -8,6 +9,9 @@ app = Flask(__name__, static_folder='webapp')
 SUPABASE_URL = "https://jzscsndwuchzlellgqea.supabase.co"
 SUPABASE_KEY = "sb_publishable_-kqOsr7gFZRi8ctCNPaLgg_4mjU-NZy"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+# --- ТОКЕН БОТА ---
+TOKEN = "8869752953:AAF2gOnS-bFts-EGsS1PZZ4pfUrRXLwkN-M"
 
 # --- ЭМОДЗИ ---
 PET_EMOJIS = {
@@ -58,15 +62,30 @@ def api_pet(user_id):
         return jsonify({'error': 'Нет питомца'}), 404
     return jsonify(pet)
 
-@app.route('/api/send_game_request', methods=['POST'])
-def api_send_game_request():
+@app.route('/api/send_message', methods=['POST'])
+def api_send_message():
     data = request.get_json()
     user_id = data.get('user_id')
     text = data.get('text')
     
-    # Здесь нужно отправить сообщение пользователю через бота
-    # Это будет делать бот, а не Flask
-    return jsonify({'status': 'ok'})
+    if not user_id or not text:
+        return jsonify({'error': 'Не хватает данных'}), 400
+    
+    # Отправляем сообщение в чат от имени бота (но адресатом будет пользователь)
+    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+    payload = {
+        'chat_id': user_id,
+        'text': text
+    }
+    
+    try:
+        response = requests.post(url, json=payload)
+        if response.status_code == 200:
+            return jsonify({'status': 'ok'})
+        else:
+            return jsonify({'error': 'Ошибка отправки'}), 500
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/api/feed/<int:user_id>', methods=['POST'])
 def api_feed(user_id):
