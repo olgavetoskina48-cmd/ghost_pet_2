@@ -41,6 +41,8 @@
         #gamePage input { background: rgba(35, 33, 58, 0.85); border: 1px solid #3c3a5c; color: #e0d7ff; padding: 12px; border-radius: 40px; width: 80%; font-size: 18px; outline: none; text-align: center; }
         .game-result { font-size: 18px; color: #b080ff; white-space: pre-line; text-align: center; margin-top: 8px; }
         .page::-webkit-scrollbar { width: 0; }
+        .btn-back { background: rgba(60, 58, 92, 0.6); border: 1px solid #3c3a5c; color: #c8c0e0; padding: 4px 12px; font-size: 13px; border-radius: 40px; cursor: pointer; align-self: flex-start; margin-bottom: 12px; transition: 0.2s; }
+        .btn-back:active { transform: scale(0.95); }
         @media (max-height: 700px) { .app { height: 100vh; border-radius: 28px; } .emoji { font-size: 100px; } .pet-name { font-size: 20px; } .stats { font-size: 14px; padding: 10px 12px; } .btn { font-size: 14px; padding: 6px 10px; min-width: 40px; } .bottom-nav { padding: 4px 0 8px; } .nav-item .icon { font-size: 18px; } }
     </style>
 </head>
@@ -99,7 +101,7 @@
         <!-- СТРАНИЦА ИГРЫ (ОКНО) -->
         <div class="page" id="gamePage">
             <div class="page-content">
-                <button class="btn" onclick="closeGame()" style="margin-bottom:12px; align-self:flex-start; padding:8px 16px; font-size:14px;">← Назад</button>
+                <button class="btn-back" onclick="closeGame()">← Назад</button>
                 <div id="gameTitle" class="pet-name" style="font-size:22px;">Игра</div>
                 <div class="game-content" id="gameContent"></div>
             </div>
@@ -205,7 +207,9 @@
                 const mode = game === 'guess_easy' ? 'easy' : 'hard';
                 title.innerText = game === 'guess_easy' ? '🔢 Угадай (1–10)' : '🧠 Угадай (1–100)';
                 content.innerHTML = `<div style="font-size:18px; color:#a8a0c2;">Введи число от 1 до ${max}</div><input type="number" id="guessInput" min="1" max="${max}"><button class="btn btn-game" onclick="guessNumber()" style="width:100%;">Проверить</button><div id="guessResult" class="game-result"></div>`;
-                fetch(`/api/start_guess/${user_id}/${mode}`, { method: 'POST' }).catch(() => {});
+                fetch(`/api/start_guess/${user_id}/${mode}`, { method: 'POST' })
+                    .then(() => {})
+                    .catch(() => {});
             }
         }
 
