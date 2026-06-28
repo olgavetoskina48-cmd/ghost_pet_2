@@ -545,7 +545,6 @@
             `;
             document.getElementById('profileStats').innerHTML = statsHtml;
 
-            // Достижения
             fetch(`/api/achievements`)
                 .then(res => res.json())
                 .then(allAch => {
@@ -615,7 +614,6 @@
             document.getElementById('streakCount').innerText = petData.streak || 0;
             document.getElementById('shopLapki').innerText = petData.лапки || 0;
 
-            // Достижения
             fetch(`/api/profile/${user_id}`)
                 .then(res => res.json())
                 .then(data => {
@@ -625,7 +623,6 @@
                     }
                 });
 
-            // Ежедневный подарок
             updateDailyTimer();
         }
 
@@ -669,7 +666,6 @@
             }
         }
 
-        // НАВИГАЦИЯ
         document.querySelectorAll('.nav-item').forEach(btn => {
             btn.addEventListener('click', function() {
                 const pageId = this.dataset.page;
@@ -684,7 +680,6 @@
             });
         });
 
-        // ИГРЫ
         function openGame(game) {
             currentGame = game;
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
