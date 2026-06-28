@@ -59,6 +59,8 @@
         .achievement-item.locked { opacity: 0.5; }
         .inventory-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(60, 58, 92, 0.3); color: #c8c0e0; font-size: 14px; }
         .inventory-item:last-child { border-bottom: none; }
+        .inv-btn { margin-top: 12px; padding: 6px 12px; font-size: 13px; background: rgba(124, 92, 191, 0.4); border: 1px solid #3c3a5c; border-radius: 40px; color: #e0d7ff; cursor: pointer; width: auto; }
+        .inv-btn:active { transform: scale(0.95); }
         @media (max-height: 700px) { .app { height: 100vh; border-radius: 28px; } .emoji { font-size: 100px; } .pet-name { font-size: 20px; } .stats { font-size: 14px; padding: 10px 12px; } .btn { font-size: 14px; padding: 6px 10px; min-width: 40px; } .bottom-nav { padding: 4px 0 8px; } .nav-item .icon { font-size: 18px; } }
     </style>
 </head>
@@ -121,7 +123,7 @@
                 <div class="pet-name" id="homePetName">Питомец</div>
                 <span class="emoji" id="homePetEmoji">🐱</span>
                 <div id="homeStatus" class="stage">😊 Чувствует себя отлично</div>
-                <button class="btn" onclick="loadInventory()" style="margin-top:12px; width:100%; padding:8px; font-size:14px; background:rgba(124,92,191,0.5); border-radius:40px; border:1px solid #3c3a5c; color:#e0d7ff;">📦 Инвентарь</button>
+                <button class="inv-btn" onclick="loadInventory()">📦 Инвентарь</button>
                 <div id="inventoryContent" style="width:100%; margin-top:10px;"></div>
             </div>
         </div>
@@ -400,4 +402,4 @@
         loadShop();
     </script>
 </body>
-                    </html>
+</html>
