@@ -151,6 +151,10 @@ def api_start_guess(user_id, mode):
     }
     return jsonify({'status': 'ok'})
 
+@app.route('/images/<path:filename>')
+def serve_images(filename):
+    return send_from_directory('webapp/images', filename)
+
 @app.route('/')
 def index():
     return send_from_directory('webapp', 'index.html')
