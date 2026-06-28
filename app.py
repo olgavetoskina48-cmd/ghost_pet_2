@@ -151,6 +151,7 @@ def api_start_guess(user_id, mode):
     }
     return jsonify({'status': 'ok'})
 
+# --- МАРШРУТ ДЛЯ КАРТИНОК (без слома статы) ---
 @app.route('/images/<path:filename>')
 def serve_images(filename):
     return send_from_directory('webapp/images', filename)
