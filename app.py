@@ -108,6 +108,10 @@ def api_profile(user_id):
     }
     return jsonify(profile_data)
 
+@app.route('/api/achievements')
+def api_achievements():
+    return jsonify(get_achievements())
+
 @app.route('/api/shop')
 def api_shop():
     items = get_shop_items()
@@ -116,7 +120,19 @@ def api_shop():
 @app.route('/api/inventory/<int:user_id>')
 def api_inventory(user_id):
     inventory = get_inventory(user_id)
-    return jsonify(inventory)
+    items = get_shop_items()
+    result = []
+    for inv in inventory:
+        for item in items:
+            if inv['item_id'] == item['id']:
+                result.append({
+                    'id': item['id'],
+                    'name': item['name'],
+                    'emoji': item['emoji'],
+                    'category': item['category'],
+                    'quantity': inv['quantity']
+                })
+    return jsonify(result)
 
 @app.route('/api/buy/<int:user_id>/<int:item_id>', methods=['POST'])
 def api_buy(user_id, item_id):
@@ -186,7 +202,7 @@ def api_wash(user_id):
     update_pet(user_id, {'гигиена': new_val, 'wash_count': pet.get('wash_count', 0) + 1})
     return jsonify({'гигиена': new_val, 'message': 'Помыт! +25'})
 
-@app.route('/api/sleep/<int:user_id>', methods=['POST'])
+@app.route('/api/sleep/<int:user_id>', methods(['POST'])
 def api_sleep(user_id):
     pet = get_pet(user_id)
     if not pet:
