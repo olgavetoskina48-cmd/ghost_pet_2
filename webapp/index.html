@@ -79,11 +79,11 @@
                 <div class="pet-name" id="homePetName">Питомец</div>
                 <span class="emoji" id="homePetEmoji">🐱</span>
                 <div class="stage" id="homeStage">Стадия: —</div>
-                <div class="home-status" id="homeStatus">😊 Чувствует себя отлично</div>
+                <div id="homeStatus" class="message">😊 Чувствует себя отлично</div>
             </div>
         </div>
 
-        <!-- СТРАНИЦА ИГРЫ (меню) -->
+        <!-- СТРАНИЦА ИГРЫ (МЕНЮ) -->
         <div class="page" id="page-games">
             <div class="page-content">
                 <div class="pet-name" style="font-size:24px;">🎮 Игры</div>
@@ -96,7 +96,7 @@
             </div>
         </div>
 
-        <!-- СТРАНИЦА ИГРЫ (окно) -->
+        <!-- СТРАНИЦА ИГРЫ (ОКНО) -->
         <div class="page" id="gamePage">
             <div class="page-content">
                 <button class="btn" onclick="closeGame()" style="margin-bottom:12px; align-self:flex-start; padding:8px 16px; font-size:14px;">← Назад</button>
@@ -105,7 +105,7 @@
             </div>
         </div>
 
-        <!-- СТРАНИЦА МАГАЗИН -->
+        <!-- СТРАНИЦА МАГАЗИН (ЗАГЛУШКА) -->
         <div class="page" id="page-shop">
             <div class="page-content">
                 <div class="pet-name" style="font-size:24px;">🛒 Магазин</div>
@@ -113,7 +113,7 @@
             </div>
         </div>
 
-        <!-- СТРАНИЦА ПРОФИЛЬ -->
+        <!-- СТРАНИЦА ПРОФИЛЬ (ЗАГЛУШКА) -->
         <div class="page" id="page-profile">
             <div class="page-content">
                 <div class="pet-name" style="font-size:24px;">👤 Профиль</div>
@@ -140,12 +140,16 @@
 
         const petEmojis = { "кошка": "🐱", "собака": "🐶", "лиса": "🦊", "панда": "🐼", "кролик": "🐇", "ёжик": "🦔", "пингвин": "🐧" };
 
-        // --- ЗАГРУЗКА ПИТОМЦА ---
         function loadPet() {
             if (!user_id) return;
             fetch(`/api/pet/${user_id}`)
                 .then(res => res.json())
-                .then(data => { if (!data.error) { petData = data; updateUI(); } })
+                .then(data => {
+                    if (!data.error) {
+                        petData = data;
+                        updateUI();
+                    }
+                })
                 .catch(() => {});
         }
 
@@ -157,12 +161,12 @@
             document.getElementById('petName').innerText = name;
             document.getElementById('petEmoji').innerText = emoji;
             document.getElementById('stage').innerText = 'Стадия: ' + stage;
-            document.getElementById('golod').innerText = petData.голод || 0;
-            document.getElementById('schastie').innerText = petData.счастье || 0;
-            document.getElementById('gigiena').innerText = petData.гигиена || 0;
-            document.getElementById('energia').innerText = petData.энергия || 0;
-            document.getElementById('disciplina').innerText = petData.дисциплина || 0;
-            document.getElementById('lapki').innerText = petData.лапки || 0;
+            document.getElementById('golod').innerText = petData.голод ?? 0;
+            document.getElementById('schastie').innerText = petData.счастье ?? 0;
+            document.getElementById('gigiena').innerText = petData.гигиена ?? 0;
+            document.getElementById('energia').innerText = petData.энергия ?? 0;
+            document.getElementById('disciplina').innerText = petData.дисциплина ?? 0;
+            document.getElementById('lapki').innerText = petData.лапки ?? 0;
             document.getElementById('homePetName').innerText = name;
             document.getElementById('homePetEmoji').innerText = emoji;
             document.getElementById('homeStage').innerText = 'Стадия: ' + stage;
@@ -170,12 +174,11 @@
 
         function action(type) {
             fetch(`/api/${type}/${user_id}`, { method: 'POST' })
-                .then(res => res.json())
-                .then(() => { loadPet(); })
+                .then(() => loadPet())
                 .catch(() => {});
         }
 
-        // --- НАВИГАЦИЯ ---
+        // НАВИГАЦИЯ
         document.querySelectorAll('.nav-item').forEach(btn => {
             btn.addEventListener('click', function() {
                 const pageId = this.dataset.page;
@@ -184,11 +187,10 @@
                 document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
                 this.classList.add('active');
                 if (pageId === 'page-pet' || pageId === 'page-home') loadPet();
-                if (pageId === 'page-games') document.getElementById('gameMessage').innerText = '';
             });
         });
 
-        // --- ИГРЫ ---
+        // ИГРЫ
         function openGame(game) {
             currentGame = game;
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
