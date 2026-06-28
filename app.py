@@ -2,6 +2,7 @@ from flask import Flask, send_from_directory, request, jsonify
 from supabase import create_client
 import os
 import random
+from datetime import datetime, timedelta
 
 app = Flask(__name__, static_folder='webapp')
 
@@ -10,6 +11,7 @@ SUPABASE_KEY = "sb_publishable_-kqOsr7gFZRi8ctCNPaLgg_4mjU-NZy"
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 game_data = {}
+dice_cooldown = {}
 
 def get_pet(user_id):
     response = supabase.table('pets').select('*').eq('user_id', user_id).execute()
@@ -19,6 +21,18 @@ def get_pet(user_id):
 
 def update_pet(user_id, data):
     supabase.table('pets').update(data).eq('user_id', user_id).execute()
+
+def get_stage(messages):
+    if messages < 100:
+        return "Зарождение ✨"
+    elif messages < 251:
+        return "Яйцо 🥚"
+    elif messages < 501:
+        return "Малыш 🐣"
+    elif messages < 1001:
+        return "Подросток 🧒"
+    else:
+        return "Взрослый 🧑"
 
 @app.route('/api/pet/<int:user_id>')
 def api_pet(user_id):
@@ -32,8 +46,12 @@ def api_feed(user_id):
     pet = get_pet(user_id)
     if not pet:
         return jsonify({'error': 'Нет питомца'}), 404
+    if pet.get('sleep_until') and datetime.fromisoformat(pet['sleep_until']) > datetime.now():
+        return jsonify({'error': '😴 Питомец спит!'}), 400
+    if pet['голод'] >= 100:
+        return jsonify({'error': 'Я уже сыт! 🍖'}), 400
     new_val = min(100, pet['голод'] + 20)
-    update_pet(user_id, {'голод': new_val})
+    update_pet(user_id, {'голод': new_val, 'feed_count': pet.get('feed_count', 0) + 1})
     return jsonify({'голод': new_val, 'message': 'Покормлен! +20'})
 
 @app.route('/api/play/<int:user_id>', methods=['POST'])
@@ -41,6 +59,10 @@ def api_play(user_id):
     pet = get_pet(user_id)
     if not pet:
         return jsonify({'error': 'Нет питомца'}), 404
+    if pet.get('sleep_until') and datetime.fromisoformat(pet['sleep_until']) > datetime.now():
+        return jsonify({'error': '😴 Питомец спит!'}), 400
+    if pet['энергия'] < 30:
+        return jsonify({'error': 'Я слишком устал! 😴'}), 400
     new_s = min(100, pet['счастье'] + 15)
     new_h = max(0, pet['голод'] - 2)
     new_e = max(0, pet['энергия'] - 10)
@@ -56,8 +78,10 @@ def api_wash(user_id):
     pet = get_pet(user_id)
     if not pet:
         return jsonify({'error': 'Нет питомца'}), 404
+    if pet.get('sleep_until') and datetime.fromisoformat(pet['sleep_until']) > datetime.now():
+        return jsonify({'error': '😴 Питомец спит!'}), 400
     new_val = min(100, pet['гигиена'] + 25)
-    update_pet(user_id, {'гигиена': new_val})
+    update_pet(user_id, {'гигиена': new_val, 'wash_count': pet.get('wash_count', 0) + 1})
     return jsonify({'гигиена': new_val, 'message': 'Помыт! +25'})
 
 @app.route('/api/sleep/<int:user_id>', methods=['POST'])
@@ -65,15 +89,21 @@ def api_sleep(user_id):
     pet = get_pet(user_id)
     if not pet:
         return jsonify({'error': 'Нет питомца'}), 404
-    new_val = min(100, pet['энергия'] + 30)
-    update_pet(user_id, {'энергия': new_val})
-    return jsonify({'энергия': new_val, 'message': 'Поспал! +30'})
+    if pet['энергия'] >= 100:
+        return jsonify({'error': '😊 Не хочет спать!'}), 400
+    sleep_until = (datetime.now() + timedelta(hours=1)).isoformat()
+    update_pet(user_id, {'sleep_until': sleep_until, 'sleep_count': pet.get('sleep_count', 0) + 1})
+    return jsonify({'message': '💤 Уснул на час!'})
 
 @app.route('/api/train/<int:user_id>', methods=['POST'])
 def api_train(user_id):
     pet = get_pet(user_id)
     if not pet:
         return jsonify({'error': 'Нет питомца'}), 404
+    if pet.get('sleep_until') and datetime.fromisoformat(pet['sleep_until']) > datetime.now():
+        return jsonify({'error': '😴 Питомец спит!'}), 400
+    if pet['энергия'] < 20:
+        return jsonify({'error': 'Я устал для тренировки! 😴'}), 400
     new_val = min(100, pet['дисциплина'] + 15)
     update_pet(user_id, {'дисциплина': new_val})
     return jsonify({'дисциплина': new_val, 'message': 'Тренировка! +15'})
@@ -83,6 +113,12 @@ def api_dice(user_id):
     pet = get_pet(user_id)
     if not pet:
         return jsonify({'error': 'Нет питомца'}), 404
+    if pet.get('sleep_until') and datetime.fromisoformat(pet['sleep_until']) > datetime.now():
+        return jsonify({'error': '😴 Питомец спит!'}), 400
+    now = time.time()
+    if user_id in dice_cooldown and now - dice_cooldown[user_id] < 60:
+        return jsonify({'error': '⏳ Подожди 60 секунд!'}), 400
+    dice_cooldown[user_id] = now
     user_roll = random.randint(1, 6)
     bot_roll = random.randint(1, 6)
     win = user_roll > bot_roll
@@ -92,9 +128,11 @@ def api_dice(user_id):
     if win:
         series = pet.get('games_series', 0) + 1
         bonus = 5 * series
-        update_pet(user_id, {'лапки': pet['лапки'] + bonus, 'games_series': series})
+        update_pet(user_id, {'лапки': pet['лапки'] + bonus, 'games_series': series, 'games_played': pet.get('games_played', 0) + 1, 'games_won': pet.get('games_won', 0) + 1, 'total_lapki_earned': pet.get('total_lapki_earned', 0) + bonus})
     elif lose:
-        update_pet(user_id, {'games_series': 0})
+        update_pet(user_id, {'games_series': 0, 'games_played': pet.get('games_played', 0) + 1})
+    else:
+        update_pet(user_id, {'games_played': pet.get('games_played', 0) + 1})
     return jsonify({
         'user_roll': user_roll,
         'bot_roll': bot_roll,
@@ -118,7 +156,7 @@ def api_guess(user_id):
     number = game['number']
     if guess == number:
         bonus = 25 if game['type'] == 'hard' else 5
-        update_pet(user_id, {'лапки': pet['лапки'] + bonus})
+        update_pet(user_id, {'лапки': pet['лапки'] + bonus, 'total_lapki_earned': pet.get('total_lapki_earned', 0) + bonus})
         game_data.pop(user_id, None)
         return jsonify({'win': True, 'bonus': bonus})
     if game['attempts'] >= game['max_attempts']:
@@ -137,6 +175,8 @@ def api_start_guess(user_id, mode):
     pet = get_pet(user_id)
     if not pet:
         return jsonify({'error': 'Нет питомца'}), 404
+    if pet.get('sleep_until') and datetime.fromisoformat(pet['sleep_until']) > datetime.now():
+        return jsonify({'error': '😴 Питомец спит!'}), 400
     if mode == 'easy':
         number = random.randint(1, 10)
         max_attempts = 3
@@ -151,7 +191,6 @@ def api_start_guess(user_id, mode):
     }
     return jsonify({'status': 'ok'})
 
-# --- МАРШРУТ ДЛЯ КАРТИНОК (без слома статы) ---
 @app.route('/images/<path:filename>')
 def serve_images(filename):
     return send_from_directory('webapp/images', filename)
