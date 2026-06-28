@@ -2,6 +2,7 @@ from flask import Flask, send_from_directory, request, jsonify
 from supabase import create_client
 import os
 import random
+import time
 from datetime import datetime, timedelta
 
 app = Flask(__name__, static_folder='webapp')
@@ -22,6 +23,21 @@ def get_pet(user_id):
 def update_pet(user_id, data):
     supabase.table('pets').update(data).eq('user_id', user_id).execute()
 
+def get_user_achievements(user_id):
+    response = supabase.table('user_achievements').select('achievement_id').eq('user_id', user_id).execute()
+    return [a['achievement_id'] for a in response.data] if response.data else []
+
+def get_achievements():
+    response = supabase.table('achievements').select('*').execute()
+    return response.data if response.data else []
+
+def get_shop_items(category=None):
+    query = supabase.table('shop_items').select('*')
+    if category:
+        query = query.eq('category', category)
+    response = query.execute()
+    return response.data if response.data else []
+
 def get_stage(messages):
     if messages < 100:
         return "Зарождение ✨"
@@ -40,6 +56,46 @@ def api_pet(user_id):
     if not pet:
         return jsonify({'error': 'Нет питомца'}), 404
     return jsonify(pet)
+
+@app.route('/api/profile/<int:user_id>')
+def api_profile(user_id):
+    pet = get_pet(user_id)
+    if not pet:
+        return jsonify({'error': 'Нет питомца'}), 404
+    
+    achievements = get_user_achievements(user_id)
+    all_achievements = get_achievements()
+    
+    profile_data = {
+        'pet_name': pet.get('pet_name', 'Питомец'),
+        'pet_type': pet.get('pet_type', 'кошка'),
+        'stage': get_stage(pet.get('total_messages', 0)),
+        'total_messages': pet.get('total_messages', 0),
+        'голод': pet.get('голод', 0),
+        'счастье': pet.get('счастье', 0),
+        'гигиена': pet.get('гигиена', 0),
+        'энергия': pet.get('энергия', 0),
+        'дисциплина': pet.get('дисциплина', 0),
+        'лапки': pet.get('лапки', 0),
+        'total_lapki_earned': pet.get('total_lapki_earned', 0),
+        'total_lapki_spent': pet.get('total_lapki_spent', 0),
+        'games_played': pet.get('games_played', 0),
+        'games_won': pet.get('games_won', 0),
+        'feed_count': pet.get('feed_count', 0),
+        'wash_count': pet.get('wash_count', 0),
+        'sleep_count': pet.get('sleep_count', 0),
+        'streak': pet.get('streak', 0),
+        'joined_at': pet.get('joined_at', ''),
+        'achievements': achievements,
+        'achievements_total': len(all_achievements),
+        'sleep_until': pet.get('sleep_until')
+    }
+    return jsonify(profile_data)
+
+@app.route('/api/shop')
+def api_shop():
+    items = get_shop_items()
+    return jsonify(items)
 
 @app.route('/api/feed/<int:user_id>', methods=['POST'])
 def api_feed(user_id):
