@@ -5,389 +5,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Призрак</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-        }
-        body {
-            background: #0b0b0e;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 8px;
-        }
-        .app {
-            max-width: 420px;
-            width: 100%;
-            height: 780px;
-            background: #1a1a24;
-            border-radius: 36px;
-            border: 1px solid #3c3a5c;
-            box-shadow: 0 8px 40px rgba(124, 92, 191, 0.3);
-            overflow: hidden;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-        .page {
-            display: none;
-            flex-direction: column;
-            height: 100%;
-            padding: 20px 16px 16px;
-            position: relative;
-            overflow-y: auto;
-            flex: 1;
-        }
-        .page.active {
-            display: flex;
-        }
-        .page-content {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex: 1;
-            padding-top: 10px;
-        }
-        .pet-name {
-            font-size: 26px;
-            font-weight: 700;
-            color: #e0d7ff;
-            text-shadow: 0 0 30px rgba(124, 92, 191, 0.3);
-            margin-bottom: 2px;
-        }
-        .emoji {
-            font-size: 140px;
-            margin: 6px 0;
-            display: block;
-            line-height: 1.1;
-            filter: drop-shadow(0 0 40px rgba(124, 92, 191, 0.4));
-        }
-        .stage {
-            font-size: 18px;
-            font-weight: 600;
-            color: #a8a0c2;
-            margin-bottom: 6px;
-            text-shadow: 0 0 20px rgba(124, 92, 191, 0.2);
-        }
-        .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px 12px;
-            background: rgba(35, 33, 58, 0.85);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 14px 16px;
-            margin: 10px 0 16px;
-            font-size: 16px;
-            text-align: left;
-            color: #c8c0e0;
-            width: 100%;
-            border: 1px solid rgba(60, 58, 92, 0.4);
-        }
-        .stats b {
-            color: #e0d7ff;
-        }
-        .btn-group {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            justify-content: center;
-            margin-bottom: 10px;
-            width: 100%;
-        }
-        .btn {
-            background: rgba(124, 92, 191, 0.6);
-            color: white;
-            border: 1px solid rgba(124, 92, 191, 0.3);
-            border-radius: 40px;
-            padding: 8px 12px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            flex: 1 0 auto;
-            min-width: 48px;
-            transition: 0.2s;
-            backdrop-filter: blur(5px);
-            box-shadow: 0 0 20px rgba(124, 92, 191, 0.15);
-        }
-        .btn:active {
-            transform: scale(0.95);
-        }
-        .btn-green {
-            background: rgba(74, 155, 124, 0.6);
-            border-color: rgba(74, 155, 124, 0.3);
-        }
-        .btn-blue {
-            background: rgba(74, 124, 155, 0.6);
-            border-color: rgba(74, 124, 155, 0.3);
-        }
-        .btn-orange {
-            background: rgba(176, 138, 74, 0.6);
-            border-color: rgba(176, 138, 74, 0.3);
-            color: #e0d7ff;
-        }
-        .btn-pink {
-            background: rgba(191, 92, 138, 0.6);
-            border-color: rgba(191, 92, 138, 0.3);
-        }
-        .btn-game {
-            background: rgba(108, 74, 139, 0.7);
-            border-color: rgba(108, 74, 139, 0.4);
-            flex: 1;
-            padding: 10px 16px;
-            font-size: 18px;
-        }
-        .btn-restart {
-            background: #4a7c9b;
-            flex: 1;
-            padding: 10px 16px;
-            font-size: 18px;
-        }
-        .message {
-            margin-top: 8px;
-            font-size: 15px;
-            color: #b080ff;
-            min-height: 22px;
-        }
-        .bottom-nav {
-            display: flex;
-            justify-content: space-around;
-            background: rgba(26, 26, 36, 0.95);
-            backdrop-filter: blur(12px);
-            border-top: 1px solid #3c3a5c;
-            padding: 8px 0 12px;
-            border-radius: 0 0 36px 36px;
-            z-index: 20;
-            flex-shrink: 0;
-        }
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #6a5a7a;
-            font-size: 10px;
-            cursor: pointer;
-            transition: 0.2s;
-            background: none;
-            border: none;
-            padding: 4px 8px;
-        }
-        .nav-item .icon {
-            font-size: 22px;
-            margin-bottom: 2px;
-            transition: 0.2s;
-        }
-        .nav-item.active {
-            color: #b080ff;
-        }
-        .nav-item.active .icon {
-            filter: drop-shadow(0 0 12px rgba(124, 92, 191, 0.6));
-        }
-        .games-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            width: 100%;
-            margin-top: 20px;
-        }
-        .games-list .btn {
-            padding: 12px;
-            font-size: 18px;
-            text-align: center;
-        }
-        #gamePage .game-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-            width: 100%;
-            margin-top: 20px;
-        }
-        #gamePage input {
-            background: rgba(35, 33, 58, 0.85);
-            border: 1px solid #3c3a5c;
-            color: #e0d7ff;
-            padding: 12px;
-            border-radius: 40px;
-            width: 80%;
-            font-size: 18px;
-            outline: none;
-            text-align: center;
-        }
-        .game-result {
-            font-size: 18px;
-            color: #b080ff;
-            white-space: pre-line;
-            text-align: center;
-            margin-top: 8px;
-        }
-        .page::-webkit-scrollbar {
-            width: 0;
-        }
-        .btn-back {
-            background: rgba(60, 58, 92, 0.6);
-            border: 1px solid #3c3a5c;
-            color: #c8c0e0;
-            padding: 4px 12px;
-            font-size: 13px;
-            border-radius: 40px;
-            cursor: pointer;
-            align-self: flex-start;
-            margin-bottom: 12px;
-            transition: 0.2s;
-        }
-        .btn-back:active {
-            transform: scale(0.95);
-        }
-        .bonus-block {
-            width: 100%;
-            margin-top: 12px;
-            background: rgba(35, 33, 58, 0.7);
-            border-radius: 16px;
-            padding: 12px 16px;
-            border: 1px solid #3c3a5c;
-        }
-        .bonus-block .row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #c8c0e0;
-            font-size: 15px;
-        }
-        .bonus-block .row span:last-child {
-            color: #b080ff;
-        }
-        .shop-category {
-            width: 100%;
-            margin-top: 12px;
-            background: rgba(35, 33, 58, 0.7);
-            border-radius: 16px;
-            padding: 12px 16px;
-            border: 1px solid #3c3a5c;
-        }
-        .shop-category .title {
-            color: #e0d7ff;
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        .shop-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 6px 0;
-            border-bottom: 1px solid rgba(60, 58, 92, 0.3);
-            color: #c8c0e0;
-            font-size: 14px;
-        }
-        .shop-item:last-child {
-            border-bottom: none;
-        }
-        .shop-item .price {
-            color: #b080ff;
-        }
-        .shop-item .buy-btn {
-            background: rgba(124, 92, 191, 0.6);
-            border: none;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 40px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-        .shop-item .buy-btn:active {
-            transform: scale(0.95);
-        }
-        .profile-stat {
-            width: 100%;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 6px 12px;
-            background: rgba(35, 33, 58, 0.7);
-            border-radius: 16px;
-            padding: 14px 16px;
-            margin-top: 10px;
-            border: 1px solid #3c3a5c;
-        }
-        .profile-stat .stat-item {
-            color: #c8c0e0;
-            font-size: 14px;
-        }
-        .profile-stat .stat-item b {
-            color: #e0d7ff;
-        }
-        .achievement-list {
-            width: 100%;
-            margin-top: 10px;
-            background: rgba(35, 33, 58, 0.7);
-            border-radius: 16px;
-            padding: 12px 16px;
-            border: 1px solid #3c3a5c;
-            max-height: 150px;
-            overflow-y: auto;
-        }
-        .achievement-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 4px 0;
-            color: #c8c0e0;
-            font-size: 14px;
-            border-bottom: 1px solid rgba(60, 58, 92, 0.2);
-        }
-        .achievement-item:last-child {
-            border-bottom: none;
-        }
-        .achievement-item.unlocked {
-            color: #b080ff;
-        }
-        .achievement-item.locked {
-            opacity: 0.5;
-        }
-        .inventory-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 6px 0;
-            border-bottom: 1px solid rgba(60, 58, 92, 0.3);
-            color: #c8c0e0;
-            font-size: 14px;
-        }
-        .inventory-item:last-child {
-            border-bottom: none;
-        }
-        @media (max-height: 700px) {
-            .app {
-                height: 100vh;
-                border-radius: 28px;
-            }
-            .emoji {
-                font-size: 100px;
-            }
-            .pet-name {
-                font-size: 20px;
-            }
-            .stats {
-                font-size: 14px;
-                padding: 10px 12px;
-            }
-            .btn {
-                font-size: 14px;
-                padding: 6px 10px;
-                min-width: 40px;
-            }
-            .bottom-nav {
-                padding: 4px 0 8px;
-            }
-            .nav-item .icon {
-                font-size: 18px;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: #0b0b0e; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 8px; }
+        .app { max-width: 420px; width: 100%; height: 780px; background: #1a1a24; border-radius: 36px; border: 1px solid #3c3a5c; box-shadow: 0 8px 40px rgba(124, 92, 191, 0.3); overflow: hidden; position: relative; display: flex; flex-direction: column; }
+        .page { display: none; flex-direction: column; height: 100%; padding: 20px 16px 16px; position: relative; overflow-y: auto; flex: 1; }
+        .page.active { display: flex; }
+        .page-content { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; flex: 1; padding-top: 10px; }
+        .pet-name { font-size: 26px; font-weight: 700; color: #e0d7ff; text-shadow: 0 0 30px rgba(124, 92, 191, 0.3); margin-bottom: 2px; }
+        .emoji { font-size: 140px; margin: 6px 0; display: block; line-height: 1.1; filter: drop-shadow(0 0 40px rgba(124, 92, 191, 0.4)); }
+        .stage { font-size: 18px; font-weight: 600; color: #a8a0c2; margin-bottom: 6px; text-shadow: 0 0 20px rgba(124, 92, 191, 0.2); }
+        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; background: rgba(35, 33, 58, 0.85); backdrop-filter: blur(10px); border-radius: 16px; padding: 14px 16px; margin: 10px 0 16px; font-size: 16px; text-align: left; color: #c8c0e0; width: 100%; border: 1px solid rgba(60, 58, 92, 0.4); }
+        .stats b { color: #e0d7ff; }
+        .btn-group { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 10px; width: 100%; }
+        .btn { background: rgba(124, 92, 191, 0.6); color: white; border: 1px solid rgba(124, 92, 191, 0.3); border-radius: 40px; padding: 8px 12px; font-size: 16px; font-weight: 500; cursor: pointer; flex: 1 0 auto; min-width: 48px; transition: 0.2s; backdrop-filter: blur(5px); box-shadow: 0 0 20px rgba(124, 92, 191, 0.15); }
+        .btn:active { transform: scale(0.95); }
+        .btn-green { background: rgba(74, 155, 124, 0.6); border-color: rgba(74, 155, 124, 0.3); }
+        .btn-blue { background: rgba(74, 124, 155, 0.6); border-color: rgba(74, 124, 155, 0.3); }
+        .btn-orange { background: rgba(176, 138, 74, 0.6); border-color: rgba(176, 138, 74, 0.3); color: #e0d7ff; }
+        .btn-pink { background: rgba(191, 92, 138, 0.6); border-color: rgba(191, 92, 138, 0.3); }
+        .btn-game { background: rgba(108, 74, 139, 0.7); border-color: rgba(108, 74, 139, 0.4); flex: 1; padding: 10px 16px; font-size: 18px; }
+        .btn-restart { background: #4a7c9b; flex: 1; padding: 10px 16px; font-size: 18px; }
+        .message { margin-top: 8px; font-size: 15px; color: #b080ff; min-height: 22px; }
+        .bottom-nav { display: flex; justify-content: space-around; background: rgba(26, 26, 36, 0.95); backdrop-filter: blur(12px); border-top: 1px solid #3c3a5c; padding: 8px 0 12px; border-radius: 0 0 36px 36px; z-index: 20; flex-shrink: 0; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: #6a5a7a; font-size: 10px; cursor: pointer; transition: 0.2s; background: none; border: none; padding: 4px 8px; }
+        .nav-item .icon { font-size: 22px; margin-bottom: 2px; transition: 0.2s; }
+        .nav-item.active { color: #b080ff; }
+        .nav-item.active .icon { filter: drop-shadow(0 0 12px rgba(124, 92, 191, 0.6)); }
+        .games-list { display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: 20px; }
+        .games-list .btn { padding: 12px; font-size: 18px; text-align: center; }
+        #gamePage .game-content { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; margin-top: 20px; }
+        #gamePage input { background: rgba(35, 33, 58, 0.85); border: 1px solid #3c3a5c; color: #e0d7ff; padding: 12px; border-radius: 40px; width: 80%; font-size: 18px; outline: none; text-align: center; }
+        .game-result { font-size: 18px; color: #b080ff; white-space: pre-line; text-align: center; margin-top: 8px; }
+        .page::-webkit-scrollbar { width: 0; }
+        .btn-back { background: rgba(60, 58, 92, 0.6); border: 1px solid #3c3a5c; color: #c8c0e0; padding: 4px 12px; font-size: 13px; border-radius: 40px; cursor: pointer; align-self: flex-start; margin-bottom: 12px; transition: 0.2s; }
+        .btn-back:active { transform: scale(0.95); }
+        .bonus-block { width: 100%; margin-top: 12px; background: rgba(35, 33, 58, 0.7); border-radius: 16px; padding: 12px 16px; border: 1px solid #3c3a5c; }
+        .bonus-block .row { display: flex; justify-content: space-between; align-items: center; color: #c8c0e0; font-size: 15px; }
+        .bonus-block .row span:last-child { color: #b080ff; }
+        .shop-category { width: 100%; margin-top: 12px; background: rgba(35, 33, 58, 0.7); border-radius: 16px; padding: 12px 16px; border: 1px solid #3c3a5c; }
+        .shop-category .title { color: #e0d7ff; font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+        .shop-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(60, 58, 92, 0.3); color: #c8c0e0; font-size: 14px; }
+        .shop-item:last-child { border-bottom: none; }
+        .shop-item .price { color: #b080ff; }
+        .shop-item .buy-btn { background: rgba(124, 92, 191, 0.6); border: none; color: white; padding: 4px 12px; border-radius: 40px; cursor: pointer; font-size: 13px; }
+        .shop-item .buy-btn:active { transform: scale(0.95); }
+        .profile-stat { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; background: rgba(35, 33, 58, 0.7); border-radius: 16px; padding: 14px 16px; margin-top: 10px; border: 1px solid #3c3a5c; }
+        .profile-stat .stat-item { color: #c8c0e0; font-size: 14px; }
+        .profile-stat .stat-item b { color: #e0d7ff; }
+        .achievement-list { width: 100%; margin-top: 10px; background: rgba(35, 33, 58, 0.7); border-radius: 16px; padding: 12px 16px; border: 1px solid #3c3a5c; max-height: 150px; overflow-y: auto; }
+        .achievement-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; color: #c8c0e0; font-size: 14px; border-bottom: 1px solid rgba(60, 58, 92, 0.2); }
+        .achievement-item:last-child { border-bottom: none; }
+        .achievement-item.unlocked { color: #b080ff; }
+        .achievement-item.locked { opacity: 0.5; }
+        .inventory-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(60, 58, 92, 0.3); color: #c8c0e0; font-size: 14px; }
+        .inventory-item:last-child { border-bottom: none; }
+        @media (max-height: 700px) { .app { height: 100vh; border-radius: 28px; } .emoji { font-size: 100px; } .pet-name { font-size: 20px; } .stats { font-size: 14px; padding: 10px 12px; } .btn { font-size: 14px; padding: 6px 10px; min-width: 40px; } .bottom-nav { padding: 4px 0 8px; } .nav-item .icon { font-size: 18px; } }
     </style>
 </head>
 <body>
@@ -414,14 +86,8 @@
                     <button class="btn btn-pink" onclick="action('train')">⚡</button>
                 </div>
                 <div class="bonus-block">
-                    <div class="row">
-                        <span>🎁 Ежедневный подарок</span>
-                        <span id="dailyTimer">Получить через: --:--:--</span>
-                    </div>
-                    <div class="row" style="margin-top:6px;">
-                        <span>🏆 Достижения: <span id="achievementsCount">0</span>/<span id="achievementsTotal">26</span></span>
-                        <span>🔥 Серия входа: <span id="streakCount">0</span> дней</span>
-                    </div>
+                    <div class="row"><span>🎁 Ежедневный подарок</span><span id="dailyTimer">Получить через: --:--:--</span></div>
+                    <div class="row" style="margin-top:6px;"><span>🏆 Достижения: <span id="achievementsCount">0</span>/<span id="achievementsTotal">26</span></span><span>🔥 Серия входа: <span id="streakCount">0</span> дней</span></div>
                 </div>
                 <div id="message" class="message">Нажми кнопку, чтобы взаимодействовать</div>
             </div>
@@ -455,7 +121,7 @@
                 <div class="pet-name" id="homePetName">Питомец</div>
                 <span class="emoji" id="homePetEmoji">🐱</span>
                 <div id="homeStatus" class="stage">😊 Чувствует себя отлично</div>
-                <button class="btn btn-game" onclick="loadInventory()" style="margin-top:12px; width:100%;">📦 Инвентарь</button>
+                <button class="btn" onclick="loadInventory()" style="margin-top:12px; width:100%; padding:8px; font-size:14px; background:rgba(124,92,191,0.5); border-radius:40px; border:1px solid #3c3a5c; color:#e0d7ff;">📦 Инвентарь</button>
                 <div id="inventoryContent" style="width:100%; margin-top:10px;"></div>
             </div>
         </div>
@@ -496,26 +162,13 @@
         let currentGame = null;
         let shopItems = [];
 
-        const petEmojis = {
-            "кошка": "🐱",
-            "собака": "🐶",
-            "лиса": "🦊",
-            "панда": "🐼",
-            "кролик": "🐇",
-            "ёжик": "🦔",
-            "пингвин": "🐧"
-        };
+        const petEmojis = { "кошка": "🐱", "собака": "🐶", "лиса": "🦊", "панда": "🐼", "кролик": "🐇", "ёжик": "🦔", "пингвин": "🐧" };
 
         function loadPet() {
             if (!user_id) return;
             fetch(`/api/pet/${user_id}`)
                 .then(res => res.json())
-                .then(data => {
-                    if (!data.error) {
-                        petData = data;
-                        updateUI();
-                    }
-                })
+                .then(data => { if (!data.error) { petData = data; updateUI(); } })
                 .catch(() => {});
         }
 
@@ -523,11 +176,7 @@
             if (!user_id) return;
             fetch(`/api/profile/${user_id}`)
                 .then(res => res.json())
-                .then(data => {
-                    if (!data.error) {
-                        renderProfile(data);
-                    }
-                })
+                .then(data => { if (!data.error) renderProfile(data); })
                 .catch(() => {});
         }
 
@@ -535,10 +184,7 @@
             if (!user_id) return;
             fetch(`/api/shop`)
                 .then(res => res.json())
-                .then(data => {
-                    shopItems = data;
-                    renderShop(data);
-                })
+                .then(data => { shopItems = data; renderShop(data); })
                 .catch(() => {});
         }
 
@@ -546,25 +192,15 @@
             if (!user_id) return;
             fetch(`/api/inventory/${user_id}`)
                 .then(res => res.json())
-                .then(data => {
-                    renderInventory(data);
-                })
+                .then(data => renderInventory(data))
                 .catch(() => {});
         }
 
         function renderInventory(items) {
             const container = document.getElementById('inventoryContent');
-            if (!items || items.length === 0) {
-                container.innerHTML = '<div class="message" style="color:#a8a0c2;">📭 Инвентарь пуст</div>';
-                return;
-            }
+            if (!items || items.length === 0) { container.innerHTML = '<div class="message" style="color:#a8a0c2;">📭 Инвентарь пуст</div>'; return; }
             let html = '<div style="color:#e0d7ff; font-size:16px; margin-bottom:6px;">📦 Ваши вещи</div>';
-            items.forEach(item => {
-                html += `<div class="inventory-item">
-                    <span>${item.emoji} ${item.name}</span>
-                    <span>×${item.quantity}</span>
-                </div>`;
-            });
+            items.forEach(item => { html += `<div class="inventory-item"><span>${item.emoji} ${item.name}</span><span>×${item.quantity}</span></div>`; });
             container.innerHTML = html;
         }
 
@@ -583,7 +219,6 @@
                 <div class="stat-item">📅 В игре: <b>${data.joined_at || '—'}</b></div>
             `;
             document.getElementById('profileStats').innerHTML = statsHtml;
-
             fetch(`/api/achievements`)
                 .then(res => res.json())
                 .then(allAch => {
@@ -591,9 +226,7 @@
                     let html = '<div style="color:#e0d7ff; font-size:16px; margin-bottom:6px;">🏆 Достижения</div>';
                     allAch.forEach(ach => {
                         const unlocked = userAch.includes(ach.id);
-                        html += `<div class="achievement-item ${unlocked ? 'unlocked' : 'locked'}">
-                            ${ach.emoji} ${ach.name} ${unlocked ? '✅' : '❌'}
-                        </div>`;
+                        html += `<div class="achievement-item ${unlocked ? 'unlocked' : 'locked'}">${ach.emoji} ${ach.name} ${unlocked ? '✅' : '❌'}</div>`;
                     });
                     document.getElementById('profileAchievements').innerHTML = html;
                 });
@@ -604,14 +237,9 @@
             let html = '';
             categories.forEach(cat => {
                 const catItems = items.filter(i => i.category === cat);
-                html += `<div class="shop-category">
-                    <div class="title">${cat.charAt(0).toUpperCase() + cat.slice(1)}</div>`;
+                html += `<div class="shop-category"><div class="title">${cat.charAt(0).toUpperCase() + cat.slice(1)}</div>`;
                 catItems.forEach(item => {
-                    html += `<div class="shop-item">
-                        <span>${item.emoji} ${item.name}</span>
-                        <span class="price">${item.price} 🐾</span>
-                        <button class="buy-btn" onclick="buyItem(${item.id})">Купить</button>
-                    </div>`;
+                    html += `<div class="shop-item"><span>${item.emoji} ${item.name}</span><span class="price">${item.price} 🐾</span><button class="buy-btn" onclick="buyItem(${item.id})">Купить</button></div>`;
                 });
                 html += `</div>`;
             });
@@ -623,10 +251,7 @@
             fetch(`/api/buy/${user_id}/${itemId}`, { method: 'POST' })
                 .then(res => res.json())
                 .then(data => {
-                    if (data.error) {
-                        showNotification('⚠️ ' + data.error);
-                        return;
-                    }
+                    if (data.error) { showNotification('⚠️ ' + data.error); return; }
                     showNotification('✅ ' + data.message, false);
                     loadPet();
                     loadShop();
@@ -652,29 +277,17 @@
             document.getElementById('homePetEmoji').innerText = emoji;
             document.getElementById('streakCount').innerText = petData.streak || 0;
             document.getElementById('shopLapki').innerText = petData.лапки || 0;
-
             fetch(`/api/profile/${user_id}`)
                 .then(res => res.json())
-                .then(data => {
-                    if (!data.error) {
-                        document.getElementById('achievementsCount').innerText = (data.achievements || []).length;
-                        document.getElementById('achievementsTotal').innerText = data.achievements_total || 26;
-                    }
-                });
-
+                .then(data => { if (!data.error) { document.getElementById('achievementsCount').innerText = (data.achievements || []).length; document.getElementById('achievementsTotal').innerText = data.achievements_total || 26; } });
             updateDailyTimer();
         }
 
         function updateDailyTimer() {
             const now = new Date();
-            const tomorrow = new Date(now);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            tomorrow.setHours(0, 0, 0, 0);
+            const tomorrow = new Date(now); tomorrow.setDate(tomorrow.getDate() + 1); tomorrow.setHours(0, 0, 0, 0);
             const diff = tomorrow - now;
-            if (diff <= 0) {
-                document.getElementById('dailyTimer').innerText = '✅ Доступно!';
-                return;
-            }
+            if (diff <= 0) { document.getElementById('dailyTimer').innerText = '✅ Доступно!'; return; }
             const hours = String(Math.floor(diff / 3600000)).padStart(2, '0');
             const minutes = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
             const seconds = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
@@ -686,10 +299,7 @@
             fetch(`/api/${type}/${user_id}`, { method: 'POST' })
                 .then(res => res.json().then(data => ({ status: res.status, body: data })))
                 .then(({ status, body }) => {
-                    if (status === 400) {
-                        showNotification('⚠️ ' + (body.error || 'Ошибка'));
-                        return;
-                    }
+                    if (status === 400) { showNotification('⚠️ ' + (body.error || 'Ошибка')); return; }
                     showNotification('✅ ' + (body.message || 'Готово!'), false);
                     loadPet();
                 })
@@ -698,11 +308,7 @@
 
         function showNotification(text, isError = true) {
             const msg = document.getElementById('message');
-            if (msg) {
-                msg.innerText = text;
-                msg.style.color = isError ? '#b080ff' : '#7c5cbf';
-                setTimeout(() => { msg.style.color = '#b080ff'; }, 5000);
-            }
+            if (msg) { msg.innerText = text; msg.style.color = isError ? '#b080ff' : '#7c5cbf'; setTimeout(() => { msg.style.color = '#b080ff'; }, 5000); }
         }
 
         document.querySelectorAll('.nav-item').forEach(btn => {
@@ -794,4 +400,4 @@
         loadShop();
     </script>
 </body>
-    </html>
+                    </html>
