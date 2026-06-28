@@ -50,7 +50,7 @@
     <div class="app" id="app">
         <!-- СТРАНИЦА ПИТОМЕЦ -->
         <div class="page active" id="page-pet">
-            <img class="bg-image" src="images/1782593675710.jpg" alt="Задний фон">
+            <img class="bg-image" src="images/1782593675710.jpg" alt="">
             <div class="page-content">
                 <div class="pet-name" id="petName">Питомец</div>
                 <span class="emoji" id="petEmoji">🐱</span>
@@ -76,7 +76,7 @@
 
         <!-- СТРАНИЦА ДОМ -->
         <div class="page" id="page-home">
-            <img class="bg-image" src="images/1782593687674.jpg" alt="Комната">
+            <img class="bg-image" src="images/1782593687674.jpg" alt="">
             <div class="page-content">
                 <div class="pet-name" id="homePetName">Питомец</div>
                 <span class="emoji" id="homePetEmoji">🐱</span>
@@ -180,7 +180,6 @@
                 .catch(() => {});
         }
 
-        // НАВИГАЦИЯ
         document.querySelectorAll('.nav-item').forEach(btn => {
             btn.addEventListener('click', function() {
                 const pageId = this.dataset.page;
@@ -192,7 +191,6 @@
             });
         });
 
-        // ИГРЫ
         function openGame(game) {
             currentGame = game;
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -207,9 +205,7 @@
                 const mode = game === 'guess_easy' ? 'easy' : 'hard';
                 title.innerText = game === 'guess_easy' ? '🔢 Угадай (1–10)' : '🧠 Угадай (1–100)';
                 content.innerHTML = `<div style="font-size:18px; color:#a8a0c2;">Введи число от 1 до ${max}</div><input type="number" id="guessInput" min="1" max="${max}"><button class="btn btn-game" onclick="guessNumber()" style="width:100%;">Проверить</button><div id="guessResult" class="game-result"></div>`;
-                fetch(`/api/start_guess/${user_id}/${mode}`, { method: 'POST' })
-                    .then(() => {})
-                    .catch(() => {});
+                fetch(`/api/start_guess/${user_id}/${mode}`, { method: 'POST' }).catch(() => {});
             }
         }
 
