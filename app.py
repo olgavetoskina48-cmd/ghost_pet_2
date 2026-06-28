@@ -31,11 +31,8 @@ def get_achievements():
     response = supabase.table('achievements').select('*').execute()
     return response.data if response.data else []
 
-def get_shop_items(category=None):
-    query = supabase.table('shop_items').select('*')
-    if category:
-        query = query.eq('category', category)
-    response = query.execute()
+def get_shop_items():
+    response = supabase.table('shop_items').select('*').execute()
     return response.data if response.data else []
 
 def get_inventory(user_id):
@@ -78,11 +75,9 @@ def api_profile(user_id):
     pet = get_pet(user_id)
     if not pet:
         return jsonify({'error': 'Нет питомца'}), 404
-    
     achievements = get_user_achievements(user_id)
     all_achievements = get_achievements()
-    
-    profile_data = {
+    return jsonify({
         'pet_name': pet.get('pet_name', 'Питомец'),
         'pet_type': pet.get('pet_type', 'кошка'),
         'stage': get_stage(pet.get('total_messages', 0)),
@@ -105,8 +100,7 @@ def api_profile(user_id):
         'achievements': achievements,
         'achievements_total': len(all_achievements),
         'sleep_until': pet.get('sleep_until')
-    }
-    return jsonify(profile_data)
+    })
 
 @app.route('/api/achievements')
 def api_achievements():
@@ -114,8 +108,7 @@ def api_achievements():
 
 @app.route('/api/shop')
 def api_shop():
-    items = get_shop_items()
-    return jsonify(items)
+    return jsonify(get_shop_items())
 
 @app.route('/api/inventory/<int:user_id>')
 def api_inventory(user_id):
@@ -139,24 +132,16 @@ def api_buy(user_id, item_id):
     pet = get_pet(user_id)
     if not pet:
         return jsonify({'error': 'Нет питомца'}), 404
-    
     item_response = supabase.table('shop_items').select('*').eq('id', item_id).execute()
     if not item_response.data:
         return jsonify({'error': 'Товар не найден'}), 404
     item = item_response.data[0]
-    
     if pet['лапки'] < item['price']:
         return jsonify({'error': 'Недостаточно лапок!'}), 400
-    
     new_lapki = pet['лапки'] - item['price']
     new_spent = pet.get('total_lapki_spent', 0) + item['price']
-    update_pet(user_id, {
-        'лапки': new_lapki,
-        'total_lapki_spent': new_spent
-    })
-    
+    update_pet(user_id, {'лапки': new_lapki, 'total_lapki_spent': new_spent})
     add_to_inventory(user_id, item_id)
-    
     return jsonify({'message': f'✅ {item["name"]} куплен!', 'lapki': new_lapki})
 
 @app.route('/api/feed/<int:user_id>', methods=['POST'])
@@ -202,7 +187,7 @@ def api_wash(user_id):
     update_pet(user_id, {'гигиена': new_val, 'wash_count': pet.get('wash_count', 0) + 1})
     return jsonify({'гигиена': new_val, 'message': 'Помыт! +25'})
 
-@app.route('/api/sleep/<int:user_id>', methods(['POST'])
+@app.route('/api/sleep/<int:user_id>', methods=['POST'])
 def api_sleep(user_id):
     pet = get_pet(user_id)
     if not pet:
