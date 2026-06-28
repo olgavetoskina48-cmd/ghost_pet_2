@@ -350,6 +350,17 @@
         .achievement-item.locked {
             opacity: 0.5;
         }
+        .inventory-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(60, 58, 92, 0.3);
+            color: #c8c0e0;
+            font-size: 14px;
+        }
+        .inventory-item:last-child {
+            border-bottom: none;
+        }
         @media (max-height: 700px) {
             .app {
                 height: 100vh;
@@ -444,6 +455,8 @@
                 <div class="pet-name" id="homePetName">Питомец</div>
                 <span class="emoji" id="homePetEmoji">🐱</span>
                 <div id="homeStatus" class="stage">😊 Чувствует себя отлично</div>
+                <button class="btn btn-game" onclick="loadInventory()" style="margin-top:12px; width:100%;">📦 Инвентарь</button>
+                <div id="inventoryContent" style="width:100%; margin-top:10px;"></div>
             </div>
         </div>
 
@@ -527,6 +540,32 @@
                     renderShop(data);
                 })
                 .catch(() => {});
+        }
+
+        function loadInventory() {
+            if (!user_id) return;
+            fetch(`/api/inventory/${user_id}`)
+                .then(res => res.json())
+                .then(data => {
+                    renderInventory(data);
+                })
+                .catch(() => {});
+        }
+
+        function renderInventory(items) {
+            const container = document.getElementById('inventoryContent');
+            if (!items || items.length === 0) {
+                container.innerHTML = '<div class="message" style="color:#a8a0c2;">📭 Инвентарь пуст</div>';
+                return;
+            }
+            let html = '<div style="color:#e0d7ff; font-size:16px; margin-bottom:6px;">📦 Ваши вещи</div>';
+            items.forEach(item => {
+                html += `<div class="inventory-item">
+                    <span>${item.emoji} ${item.name}</span>
+                    <span>×${item.quantity}</span>
+                </div>`;
+            });
+            container.innerHTML = html;
         }
 
         function renderProfile(data) {
@@ -677,6 +716,7 @@
                 if (pageId === 'page-profile') loadProfile();
                 if (pageId === 'page-shop') loadShop();
                 if (pageId === 'page-games') document.getElementById('gameMessage').innerText = '';
+                if (pageId === 'page-home') loadInventory();
             });
         });
 
