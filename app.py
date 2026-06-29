@@ -144,7 +144,7 @@ def api_buy(user_id, item_id):
     add_to_inventory(user_id, item_id)
     return jsonify({'message': f'✅ {item["name"]} куплен!', 'lapki': new_lapki})
 
-@app.route('/api/feed/<int:user_id>', methods(['POST'])
+@app.route('/api/feed/<int:user_id>', methods=['POST'])
 def api_feed(user_id):
     pet = get_pet(user_id)
     if not pet:
