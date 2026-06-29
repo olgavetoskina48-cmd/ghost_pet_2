@@ -59,6 +59,10 @@
         .achievement-item.locked { opacity: 0.5; }
         .inventory-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(60, 58, 92, 0.3); color: #c8c0e0; font-size: 14px; }
         .inventory-item:last-child { border-bottom: none; }
+        /* ✅ КНОПКА ИНВЕНТАРЯ В УГЛУ */
+        .inventory-btn-wrap { position: absolute; top: 10px; right: 10px; z-index: 20; }
+        .inventory-btn-wrap .btn { padding: 4px 10px; font-size: 11px; min-width: auto; width: auto; flex: none; background: rgba(124,92,191,0.4); border: 1px solid rgba(124,92,191,0.2); border-radius: 20px; color: #b080ff; }
+        .inventory-btn-wrap .btn:active { transform: scale(0.95); }
         @media (max-height: 700px) { .app { height: 100vh; border-radius: 28px; } .emoji { font-size: 100px; } .pet-name { font-size: 20px; } .stats { font-size: 14px; padding: 10px 12px; } .btn { font-size: 14px; padding: 6px 10px; min-width: 40px; } .bottom-nav { padding: 4px 0 8px; } .nav-item .icon { font-size: 18px; } }
     </style>
 </head>
@@ -117,14 +121,14 @@
 
         <!-- СТРАНИЦА ДОМ -->
         <div class="page" id="page-home">
-            <div class="page-content">
+            <div class="page-content" style="position: relative;">
+                <!-- ✅ КНОПКА ИНВЕНТАРЯ — МАЛЕНЬКАЯ И В УГЛУ -->
+                <div class="inventory-btn-wrap">
+                    <button class="btn" onclick="loadInventory()">📦</button>
+                </div>
                 <div class="pet-name" id="homePetName">Питомец</div>
                 <span class="emoji" id="homePetEmoji">🐱</span>
                 <div id="homeStatus" class="stage">😊 Чувствует себя отлично</div>
-                <!-- ✅ ИСПРАВЛЕНО: кнопка инвентаря уменьшена -->
-                <button class="btn" onclick="loadInventory()" style="margin-top:12px; padding:6px 12px; font-size:13px; width:auto; background:rgba(124,92,191,0.5); border-radius:40px; border:1px solid #3c3a5c; color:#e0d7ff;">
-                    📦 Инвентарь
-                </button>
                 <div id="inventoryContent" style="width:100%; margin-top:10px;"></div>
             </div>
         </div>
@@ -207,7 +211,7 @@
             container.innerHTML = html;
         }
 
-        // ✅ ИСПРАВЛЕНО: добавлена полная статистика в профиль
+        // ✅ ПРОФИЛЬ — СТАТИСТИКА
         function renderProfile(data) {
             document.getElementById('profileName').innerText = '👤 ' + (data.pet_name || 'Питомец');
             const statsHtml = `
@@ -346,7 +350,17 @@
                 const mode = game === 'guess_easy' ? 'easy' : 'hard';
                 title.innerText = game === 'guess_easy' ? '🔮 Шёпот цифр (1–10)' : '🧠 Проклятая загадка (1–100)';
                 content.innerHTML = `<div style="font-size:18px; color:#a8a0c2;">Введи число от 1 до ${max}</div><input type="number" id="guessInput" min="1" max="${max}"><button class="btn btn-game" onclick="guessNumber()" style="width:100%;">Проверить</button><div id="guessResult" class="game-result"></div>`;
-                fetch(`/api/start_guess/${user_id}/${mode}`, { method: 'POST' }).catch(() => {});
+                // ✅ ИСПРАВЛЕНО: запускаем игру через API
+                fetch(`/api/start_guess/${user_id}/${mode}`, { method: 'POST' })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.error) {
+                            document.getElementById('guessResult').innerText = '⚠️ ' + data.error;
+                        }
+                    })
+                    .catch(() => {
+                        document.getElementById('guessResult').innerText = '⚠️ Ошибка запуска игры';
+                    });
             }
         }
 
@@ -355,7 +369,6 @@
             document.getElementById('page-games').classList.add('active');
         }
 
-        // ✅ ИСПРАВЛЕНО: кубики с обработкой ошибок
         function diceRoll() {
             if (!user_id) return;
             fetch(`/api/dice/${user_id}`, { method: 'POST' })
@@ -380,6 +393,7 @@
                 });
         }
 
+        // ✅ ИСПРАВЛЕНО: угадайка теперь работает без undefined
         function guessNumber() {
             if (!user_id) return;
             const input = document.getElementById('guessInput');
@@ -399,13 +413,15 @@
                 } else if (data.lose) {
                     result.innerHTML = `❌ Ты не угадал! Загаданное число было ${data.number}.<div style="margin-top:12px;"><button class="btn btn-restart" onclick="openGame('${currentGame}')">🔢 Играть снова</button></div>`;
                     loadPet();
-                } else {
+                } else if (data.hint !== undefined) {
                     const emoji = data.hint === 'больше' ? '📈' : '📉';
                     result.innerText = `${emoji} Загаданное число ${data.hint}. Осталось попыток: ${data.attempts_left}`;
+                } else {
+                    result.innerText = '⚠️ Ошибка: непонятный ответ от сервера';
                 }
                 input.value = '';
             })
-            .catch(() => { document.getElementById('guessResult').innerText = '❌ Ошибка'; });
+            .catch(() => { document.getElementById('guessResult').innerText = '❌ Ошибка сервера'; });
         }
 
         setInterval(updateDailyTimer, 1000);
@@ -414,4 +430,4 @@
         loadShop();
     </script>
 </body>
-</html>
+    </html>
