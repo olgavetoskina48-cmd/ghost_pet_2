@@ -96,10 +96,8 @@ def get_inventory(user_id):
     response = supabase.table('inventory').select('*').eq('user_id', user_id).execute()
     return response.data if response.data else []
 
-# ✅ ПЕРЕПИСАННАЯ ФУНКЦИЯ — теперь точно работает
 def add_to_inventory(user_id, item_id, quantity=1):
     try:
-        # Проверяем, есть ли уже такой товар у пользователя
         existing = supabase.table('inventory').select('*').eq('user_id', user_id).eq('item_id', item_id).execute()
         if existing.data:
             new_qty = existing.data[0]['quantity'] + quantity
@@ -589,7 +587,6 @@ def api_inventory(user_id):
                 })
     return jsonify(result)
 
-# ✅ ПЕРЕПИСАННЫЙ API ПОКУПКИ — с проверкой на ошибки
 @flask_app.route('/api/buy/<int:user_id>/<int:item_id>', methods=['POST'])
 def api_buy(user_id, item_id):
     pet = get_pet(user_id)
@@ -604,12 +601,10 @@ def api_buy(user_id, item_id):
     if pet['лапки'] < item['price']:
         return jsonify({'error': 'Недостаточно лапок!'}), 400
     
-    # Списываем лапки
     new_lapki = pet['лапки'] - item['price']
     new_spent = pet.get('total_lapki_spent', 0) + item['price']
     update_pet(user_id, {'лапки': new_lapki, 'total_lapki_spent': new_spent})
     
-    # ✅ Добавляем в инвентарь с проверкой
     success = add_to_inventory(user_id, item_id)
     if not success:
         return jsonify({'error': 'Ошибка сохранения в инвентарь'}), 500
