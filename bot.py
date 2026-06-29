@@ -166,9 +166,35 @@ def check_achievements(user_id, pet):
             unlock_achievement(user_id, ach['id'])
             bot.send_message(user_id, f"🏆 {ach['emoji']} {ach['name']}!\n{ach['description']}")
 
+# ✅ ФУНКЦИЯ ДЛЯ ОБНОВЛЕНИЯ СЕРИИ ВХОДА
+def update_streak(user_id, pet):
+    today = date.today()
+    last_date = pet.get('streak_date')
+    
+    if last_date:
+        last_date_obj = datetime.fromisoformat(last_date).date()
+        if last_date_obj == today:
+            return  # уже обновлено сегодня
+        elif last_date_obj == today - timedelta(days=1):
+            new_streak = pet.get('streak', 0) + 1
+            update_pet(user_id, {'streak': new_streak, 'streak_date': today.isoformat()})
+            return
+        else:
+            # пропущен день — сброс
+            update_pet(user_id, {'streak': 0, 'streak_date': today.isoformat()})
+            return
+    else:
+        # первый вход
+        update_pet(user_id, {'streak': 1, 'streak_date': today.isoformat()})
+
 # --- КОМАНДЫ БОТА ---
 @bot.message_handler(commands=['start'])
 def start(message):
+    user_id = message.from_user.id
+    pet = get_pet(user_id)
+    if pet:
+        update_streak(user_id, pet)
+    
     bot.send_message(message.chat.id,
         "🐾 Приветик! Я твой призрачный питомец!\n"
         "Вот список команд, которые я могу тебе предложить!)\n\n"
@@ -219,6 +245,7 @@ def set_pet_type(message):
     if pet_type not in PET_EMOJIS:
         bot.send_message(message.chat.id, "❌ Неверный тип. Напиши: кошка, собака, лиса, панда, кролик, ёжик или пингвин")
         return
+    today = date.today().isoformat()
     supabase.table('pets').insert({
         'user_id': user_id,
         'pet_type': pet_type,
@@ -232,8 +259,9 @@ def set_pet_type(message):
         'дисциплина': 50,
         'дни': 0,
         'лапки': 0,
-        'joined_at': date.today().isoformat(),
-        'streak': 1
+        'joined_at': today,
+        'streak': 0,
+        'streak_date': today
     }).execute()
     user_states.pop(user_id, None)
     bot.send_message(message.chat.id, f"✅ Ты выбрал {PET_EMOJIS[pet_type]} {pet_type.capitalize()}! Чтобы он вылупился, нужно 100 сообщений.")
@@ -512,6 +540,10 @@ def handle_messages(message):
     pet = get_pet(user_id)
     if not pet:
         return
+    
+    # ✅ Обновляем серию входов при каждом сообщении
+    update_streak(user_id, pet)
+    
     new_total = pet['total_messages'] + 1
     new_lapki = pet['лапки'] + 1
     update_pet(user_id, {'total_messages': new_total, 'лапки': new_lapki, 'total_lapki_earned': pet.get('total_lapki_earned', 0) + 1})
