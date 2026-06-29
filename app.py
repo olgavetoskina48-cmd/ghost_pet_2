@@ -1,403 +1,307 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Призрак</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
-        body { background: #0b0b0e; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 8px; }
-        .app { max-width: 420px; width: 100%; height: 780px; background: #1a1a24; border-radius: 36px; border: 1px solid #3c3a5c; box-shadow: 0 8px 40px rgba(124, 92, 191, 0.3); overflow: hidden; position: relative; display: flex; flex-direction: column; }
-        .page { display: none; flex-direction: column; height: 100%; padding: 20px 16px 16px; position: relative; overflow-y: auto; flex: 1; }
-        .page.active { display: flex; }
-        .page-content { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; flex: 1; padding-top: 10px; }
-        .pet-name { font-size: 26px; font-weight: 700; color: #e0d7ff; text-shadow: 0 0 30px rgba(124, 92, 191, 0.3); margin-bottom: 2px; }
-        .emoji { font-size: 140px; margin: 6px 0; display: block; line-height: 1.1; filter: drop-shadow(0 0 40px rgba(124, 92, 191, 0.4)); }
-        .stage { font-size: 18px; font-weight: 600; color: #a8a0c2; margin-bottom: 6px; text-shadow: 0 0 20px rgba(124, 92, 191, 0.2); }
-        .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; background: rgba(35, 33, 58, 0.85); backdrop-filter: blur(10px); border-radius: 16px; padding: 14px 16px; margin: 10px 0 16px; font-size: 16px; text-align: left; color: #c8c0e0; width: 100%; border: 1px solid rgba(60, 58, 92, 0.4); }
-        .stats b { color: #e0d7ff; }
-        .btn-group { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-bottom: 10px; width: 100%; }
-        .btn { background: rgba(124, 92, 191, 0.6); color: white; border: 1px solid rgba(124, 92, 191, 0.3); border-radius: 40px; padding: 8px 12px; font-size: 16px; font-weight: 500; cursor: pointer; flex: 1 0 auto; min-width: 48px; transition: 0.2s; backdrop-filter: blur(5px); box-shadow: 0 0 20px rgba(124, 92, 191, 0.15); }
-        .btn:active { transform: scale(0.95); }
-        .btn-green { background: rgba(74, 155, 124, 0.6); border-color: rgba(74, 155, 124, 0.3); }
-        .btn-blue { background: rgba(74, 124, 155, 0.6); border-color: rgba(74, 124, 155, 0.3); }
-        .btn-orange { background: rgba(176, 138, 74, 0.6); border-color: rgba(176, 138, 74, 0.3); color: #e0d7ff; }
-        .btn-pink { background: rgba(191, 92, 138, 0.6); border-color: rgba(191, 92, 138, 0.3); }
-        .btn-game { background: rgba(108, 74, 139, 0.7); border-color: rgba(108, 74, 139, 0.4); flex: 1; padding: 10px 16px; font-size: 18px; }
-        .btn-restart { background: #4a7c9b; flex: 1; padding: 10px 16px; font-size: 18px; }
-        .message { margin-top: 8px; font-size: 15px; color: #b080ff; min-height: 22px; }
-        .bottom-nav { display: flex; justify-content: space-around; background: rgba(26, 26, 36, 0.95); backdrop-filter: blur(12px); border-top: 1px solid #3c3a5c; padding: 8px 0 12px; border-radius: 0 0 36px 36px; z-index: 20; flex-shrink: 0; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: #6a5a7a; font-size: 10px; cursor: pointer; transition: 0.2s; background: none; border: none; padding: 4px 8px; }
-        .nav-item .icon { font-size: 22px; margin-bottom: 2px; transition: 0.2s; }
-        .nav-item.active { color: #b080ff; }
-        .nav-item.active .icon { filter: drop-shadow(0 0 12px rgba(124, 92, 191, 0.6)); }
-        .games-list { display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: 20px; }
-        .games-list .btn { padding: 12px; font-size: 18px; text-align: center; }
-        #gamePage .game-content { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; margin-top: 20px; }
-        #gamePage input { background: rgba(35, 33, 58, 0.85); border: 1px solid #3c3a5c; color: #e0d7ff; padding: 12px; border-radius: 40px; width: 80%; font-size: 18px; outline: none; text-align: center; }
-        .game-result { font-size: 18px; color: #b080ff; white-space: pre-line; text-align: center; margin-top: 8px; }
-        .page::-webkit-scrollbar { width: 0; }
-        .btn-back { background: rgba(60, 58, 92, 0.6); border: 1px solid #3c3a5c; color: #c8c0e0; padding: 4px 12px; font-size: 13px; border-radius: 40px; cursor: pointer; align-self: flex-start; margin-bottom: 12px; transition: 0.2s; }
-        .btn-back:active { transform: scale(0.95); }
-        .bonus-block { width: 100%; margin-top: 12px; background: rgba(35, 33, 58, 0.7); border-radius: 16px; padding: 12px 16px; border: 1px solid #3c3a5c; }
-        .bonus-block .row { display: flex; justify-content: space-between; align-items: center; color: #c8c0e0; font-size: 15px; }
-        .bonus-block .row span:last-child { color: #b080ff; }
-        .shop-category { width: 100%; margin-top: 12px; background: rgba(35, 33, 58, 0.7); border-radius: 16px; padding: 12px 16px; border: 1px solid #3c3a5c; }
-        .shop-category .title { color: #e0d7ff; font-size: 18px; font-weight: 600; margin-bottom: 8px; }
-        .shop-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(60, 58, 92, 0.3); color: #c8c0e0; font-size: 14px; }
-        .shop-item:last-child { border-bottom: none; }
-        .shop-item .price { color: #b080ff; }
-        .shop-item .buy-btn { background: rgba(124, 92, 191, 0.6); border: none; color: white; padding: 4px 12px; border-radius: 40px; cursor: pointer; font-size: 13px; }
-        .shop-item .buy-btn:active { transform: scale(0.95); }
-        .profile-stat { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; background: rgba(35, 33, 58, 0.7); border-radius: 16px; padding: 14px 16px; margin-top: 10px; border: 1px solid #3c3a5c; }
-        .profile-stat .stat-item { color: #c8c0e0; font-size: 14px; }
-        .profile-stat .stat-item b { color: #e0d7ff; }
-        .achievement-list { width: 100%; margin-top: 10px; background: rgba(35, 33, 58, 0.7); border-radius: 16px; padding: 12px 16px; border: 1px solid #3c3a5c; max-height: 150px; overflow-y: auto; }
-        .achievement-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; color: #c8c0e0; font-size: 14px; border-bottom: 1px solid rgba(60, 58, 92, 0.2); }
-        .achievement-item:last-child { border-bottom: none; }
-        .achievement-item.unlocked { color: #b080ff; }
-        .achievement-item.locked { opacity: 0.5; }
-        .inventory-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(60, 58, 92, 0.3); color: #c8c0e0; font-size: 14px; }
-        .inventory-item:last-child { border-bottom: none; }
-        @media (max-height: 700px) { .app { height: 100vh; border-radius: 28px; } .emoji { font-size: 100px; } .pet-name { font-size: 20px; } .stats { font-size: 14px; padding: 10px 12px; } .btn { font-size: 14px; padding: 6px 10px; min-width: 40px; } .bottom-nav { padding: 4px 0 8px; } .nav-item .icon { font-size: 18px; } }
-    </style>
-</head>
-<body>
-    <div class="app" id="app">
-        <!-- СТРАНИЦА ПИТОМЕЦ -->
-        <div class="page active" id="page-pet">
-            <div class="page-content">
-                <div class="pet-name" id="petName">Питомец</div>
-                <span class="emoji" id="petEmoji">🐱</span>
-                <div class="stage" id="stage">Стадия: —</div>
-                <div class="stats">
-                    <span>🥩 Голод: <b id="golod">—</b></span>
-                    <span>🍽 Счастье: <b id="schastie">—</b></span>
-                    <span>🫧 Гигиена: <b id="gigiena">—</b></span>
-                    <span>⚡ Энергия: <b id="energia">—</b></span>
-                    <span>📏 Дисциплина: <b id="disciplina">—</b></span>
-                    <span>🐾 Лапки: <b id="lapki">—</b></span>
-                </div>
-                <div class="btn-group">
-                    <button class="btn btn-green" onclick="action('feed')">🍽</button>
-                    <button class="btn btn-orange" onclick="action('play')">⚾</button>
-                    <button class="btn btn-blue" onclick="action('wash')">🫧</button>
-                    <button class="btn" onclick="action('sleep')">💤</button>
-                    <button class="btn btn-pink" onclick="action('train')">⚡</button>
-                </div>
-                <div class="bonus-block">
-                    <div class="row"><span>🎁 Ежедневный подарок</span><span id="dailyTimer">Получить через: --:--:--</span></div>
-                    <div class="row" style="margin-top:6px;"><span>🏆 Достижения: <span id="achievementsCount">0</span>/<span id="achievementsTotal">26</span></span><span>🔥 Серия входа: <span id="streakCount">0</span> дней</span></div>
-                </div>
-                <div id="message" class="message">Нажми кнопку, чтобы взаимодействовать</div>
-            </div>
-        </div>
+from flask import Flask, send_from_directory, request, jsonify
+from supabase import create_client
+import os
+import random
+import time
+from datetime import datetime, timedelta
 
-        <!-- СТРАНИЦА ИГРЫ (МЕНЮ) -->
-        <div class="page" id="page-games">
-            <div class="page-content">
-                <div class="pet-name" style="font-size:24px;">🎮 Игры</div>
-                <div class="games-list">
-                    <button class="btn btn-game" onclick="openGame('dice')">🎲 Призрачный куб</button>
-                    <button class="btn btn-game" onclick="openGame('guess_easy')">🔮 Шёпот цифр</button>
-                    <button class="btn btn-game" onclick="openGame('guess_hard')">🧠 Проклятая загадка</button>
-                </div>
-                <div id="gameMessage" class="message" style="margin-top:20px;"></div>
-            </div>
-        </div>
+app = Flask(__name__, static_folder='webapp')
 
-        <!-- СТРАНИЦА ИГРЫ (ОКНО) -->
-        <div class="page" id="gamePage">
-            <div class="page-content">
-                <button class="btn-back" onclick="closeGame()">← Назад</button>
-                <div id="gameTitle" class="pet-name" style="font-size:22px;">Игра</div>
-                <div class="game-content" id="gameContent"></div>
-            </div>
-        </div>
+SUPABASE_URL = "https://jzscsndwuchzlellgqea.supabase.co"
+SUPABASE_KEY = "sb_publishable_-kqOsr7gFZRi8ctCNPaLgg_4mjU-NZy"
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-        <!-- СТРАНИЦА ДОМ -->
-        <div class="page" id="page-home">
-            <div class="page-content">
-                <div class="pet-name" id="homePetName">Питомец</div>
-                <span class="emoji" id="homePetEmoji">🐱</span>
-                <div id="homeStatus" class="stage">😊 Чувствует себя отлично</div>
-                <button class="btn" onclick="loadInventory()" style="margin-top:12px; width:100%; padding:8px; font-size:14px; background:rgba(124,92,191,0.5); border-radius:40px; border:1px solid #3c3a5c; color:#e0d7ff;">📦 Инвентарь</button>
-                <div id="inventoryContent" style="width:100%; margin-top:10px;"></div>
-            </div>
-        </div>
+game_data = {}
+dice_cooldown = {}
 
-        <!-- СТРАНИЦА МАГАЗИН -->
-        <div class="page" id="page-shop">
-            <div class="page-content">
-                <div class="pet-name" style="font-size:24px;">🛒 Магазин</div>
-                <div style="margin-top:8px; color:#b080ff; font-size:18px;">🐾 <span id="shopLapki">0</span></div>
-                <div id="shopContent" style="width:100%; margin-top:10px;"></div>
-            </div>
-        </div>
+def get_pet(user_id):
+    response = supabase.table('pets').select('*').eq('user_id', user_id).execute()
+    if response.data:
+        return response.data[0]
+    return None
 
-        <!-- СТРАНИЦА ПРОФИЛЬ -->
-        <div class="page" id="page-profile">
-            <div class="page-content">
-                <div class="pet-name" style="font-size:24px;" id="profileName">👤 Профиль</div>
-                <div id="profileStats" class="profile-stat"></div>
-                <div id="profileAchievements" class="achievement-list"></div>
-            </div>
-        </div>
+def update_pet(user_id, data):
+    supabase.table('pets').update(data).eq('user_id', user_id).execute()
 
-        <!-- НИЖНЕЕ МЕНЮ -->
-        <div class="bottom-nav" id="bottomNav">
-            <button class="nav-item active" data-page="page-pet"><span class="icon">🐾</span><span>Питомец</span></button>
-            <button class="nav-item" data-page="page-games"><span class="icon">🎮</span><span>Игры</span></button>
-            <button class="nav-item" data-page="page-home"><span class="icon">🏠</span><span>Дом</span></button>
-            <button class="nav-item" data-page="page-shop"><span class="icon">🛒</span><span>Магазин</span></button>
-            <button class="nav-item" data-page="page-profile"><span class="icon">👤</span><span>Профиль</span></button>
-        </div>
-    </div>
+def get_user_achievements(user_id):
+    response = supabase.table('user_achievements').select('achievement_id').eq('user_id', user_id).execute()
+    return [a['achievement_id'] for a in response.data] if response.data else []
 
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script>
-        let tg = window.Telegram.WebApp;
-        let user_id = tg.initDataUnsafe?.user?.id;
-        let petData = {};
-        let currentGame = null;
-        let shopItems = [];
+def get_achievements():
+    response = supabase.table('achievements').select('*').execute()
+    return response.data if response.data else []
 
-        const petEmojis = { "кошка": "🐱", "собака": "🐶", "лиса": "🦊", "панда": "🐼", "кролик": "🐇", "ёжик": "🦔", "пингвин": "🐧" };
+def get_shop_items():
+    response = supabase.table('shop_items').select('*').execute()
+    return response.data if response.data else []
 
-        function loadPet() {
-            if (!user_id) return;
-            fetch(`/api/pet/${user_id}`)
-                .then(res => res.json())
-                .then(data => { if (!data.error) { petData = data; updateUI(); } })
-                .catch(() => {});
-        }
+def get_inventory(user_id):
+    response = supabase.table('inventory').select('*').eq('user_id', user_id).execute()
+    return response.data if response.data else []
 
-        function loadProfile() {
-            if (!user_id) return;
-            fetch(`/api/profile/${user_id}`)
-                .then(res => res.json())
-                .then(data => { if (!data.error) renderProfile(data); })
-                .catch(() => {});
-        }
+def add_to_inventory(user_id, item_id, quantity=1):
+    existing = supabase.table('inventory').select('*').eq('user_id', user_id).eq('item_id', item_id).execute()
+    if existing.data:
+        new_qty = existing.data[0]['quantity'] + quantity
+        supabase.table('inventory').update({'quantity': new_qty}).eq('user_id', user_id).eq('item_id', item_id).execute()
+    else:
+        supabase.table('inventory').insert({
+            'user_id': user_id,
+            'item_id': item_id,
+            'quantity': quantity
+        }).execute()
 
-        function loadShop() {
-            if (!user_id) return;
-            fetch(`/api/shop`)
-                .then(res => res.json())
-                .then(data => { shopItems = data; renderShop(data); })
-                .catch(() => {});
-        }
+def get_stage(messages):
+    if messages < 100:
+        return "Зарождение ✨"
+    elif messages < 251:
+        return "Яйцо 🥚"
+    elif messages < 501:
+        return "Малыш 🐣"
+    elif messages < 1001:
+        return "Подросток 🧒"
+    else:
+        return "Взрослый 🧑"
 
-        function loadInventory() {
-            if (!user_id) return;
-            fetch(`/api/inventory/${user_id}`)
-                .then(res => res.json())
-                .then(data => renderInventory(data))
-                .catch(() => {});
-        }
+@app.route('/api/pet/<int:user_id>')
+def api_pet(user_id):
+    pet = get_pet(user_id)
+    if not pet:
+        return jsonify({'error': 'Нет питомца'}), 404
+    return jsonify(pet)
 
-        function renderInventory(items) {
-            const container = document.getElementById('inventoryContent');
-            if (!items || items.length === 0) { container.innerHTML = '<div class="message" style="color:#a8a0c2;">📭 Инвентарь пуст</div>'; return; }
-            let html = '<div style="color:#e0d7ff; font-size:16px; margin-bottom:6px;">📦 Ваши вещи</div>';
-            items.forEach(item => { html += `<div class="inventory-item"><span>${item.emoji} ${item.name}</span><span>×${item.quantity}</span></div>`; });
-            container.innerHTML = html;
-        }
+@app.route('/api/profile/<int:user_id>')
+def api_profile(user_id):
+    pet = get_pet(user_id)
+    if not pet:
+        return jsonify({'error': 'Нет питомца'}), 404
+    achievements = get_user_achievements(user_id)
+    all_achievements = get_achievements()
+    return jsonify({
+        'pet_name': pet.get('pet_name', 'Питомец'),
+        'pet_type': pet.get('pet_type', 'кошка'),
+        'stage': get_stage(pet.get('total_messages', 0)),
+        'total_messages': pet.get('total_messages', 0),
+        'голод': pet.get('голод', 0),
+        'счастье': pet.get('счастье', 0),
+        'гигиена': pet.get('гигиена', 0),
+        'энергия': pet.get('энергия', 0),
+        'дисциплина': pet.get('дисциплина', 0),
+        'лапки': pet.get('лапки', 0),
+        'total_lapki_earned': pet.get('total_lapki_earned', 0),
+        'total_lapki_spent': pet.get('total_lapki_spent', 0),
+        'games_played': pet.get('games_played', 0),
+        'games_won': pet.get('games_won', 0),
+        'feed_count': pet.get('feed_count', 0),
+        'wash_count': pet.get('wash_count', 0),
+        'sleep_count': pet.get('sleep_count', 0),
+        'streak': pet.get('streak', 0),
+        'joined_at': pet.get('joined_at', ''),
+        'achievements': achievements,
+        'achievements_total': len(all_achievements),
+        'sleep_until': pet.get('sleep_until')
+    })
 
-        function renderProfile(data) {
-            document.getElementById('profileName').innerText = '👤 ' + (data.pet_name || 'Питомец');
-            const statsHtml = `
-                <div class="stat-item">🐾 Лапки: <b>${data.lapki}</b></div>
-                <div class="stat-item">📊 Сообщений: <b>${data.total_messages}</b></div>
-                <div class="stat-item">🎮 Игр: <b>${data.games_played}</b></div>
-                <div class="stat-item">🏆 Побед: <b>${data.games_won}</b></div>
-                <div class="stat-item">🍖 Кормлений: <b>${data.feed_count}</b></div>
-                <div class="stat-item">🫧 Купаний: <b>${data.wash_count}</b></div>
-                <div class="stat-item">💤 Снов: <b>${data.sleep_count}</b></div>
-                <div class="stat-item">🐾 Заработано: <b>${data.total_lapki_earned}</b></div>
-                <div class="stat-item">🔥 Серия: <b>${data.streak}</b> дней</div>
-                <div class="stat-item">📅 В игре: <b>${data.joined_at || '—'}</b></div>
-            `;
-            document.getElementById('profileStats').innerHTML = statsHtml;
-            fetch(`/api/achievements`)
-                .then(res => res.json())
-                .then(allAch => {
-                    const userAch = data.achievements || [];
-                    let html = '<div style="color:#e0d7ff; font-size:16px; margin-bottom:6px;">🏆 Достижения</div>';
-                    allAch.forEach(ach => {
-                        const unlocked = userAch.includes(ach.id);
-                        html += `<div class="achievement-item ${unlocked ? 'unlocked' : 'locked'}">${ach.emoji} ${ach.name} ${unlocked ? '✅' : '❌'}</div>`;
-                    });
-                    document.getElementById('profileAchievements').innerHTML = html;
-                });
-        }
+@app.route('/api/achievements')
+def api_achievements():
+    return jsonify(get_achievements())
 
-        function renderShop(items) {
-            const categories = [...new Set(items.map(i => i.category))];
-            let html = '';
-            categories.forEach(cat => {
-                const catItems = items.filter(i => i.category === cat);
-                html += `<div class="shop-category"><div class="title">${cat.charAt(0).toUpperCase() + cat.slice(1)}</div>`;
-                catItems.forEach(item => {
-                    html += `<div class="shop-item"><span>${item.emoji} ${item.name}</span><span class="price">${item.price} 🐾</span><button class="buy-btn" onclick="buyItem(${item.id})">Купить</button></div>`;
-                });
-                html += `</div>`;
-            });
-            document.getElementById('shopContent').innerHTML = html;
-        }
+@app.route('/api/shop')
+def api_shop():
+    return jsonify(get_shop_items())
 
-        function buyItem(itemId) {
-            if (!user_id) return;
-            fetch(`/api/buy/${user_id}/${itemId}`, { method: 'POST' })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.error) { showNotification('⚠️ ' + data.error); return; }
-                    showNotification('✅ ' + data.message, false);
-                    loadPet();
-                    loadShop();
+@app.route('/api/inventory/<int:user_id>')
+def api_inventory(user_id):
+    inventory = get_inventory(user_id)
+    items = get_shop_items()
+    result = []
+    for inv in inventory:
+        for item in items:
+            if inv['item_id'] == item['id']:
+                result.append({
+                    'id': item['id'],
+                    'name': item['name'],
+                    'emoji': item['emoji'],
+                    'category': item['category'],
+                    'quantity': inv['quantity']
                 })
-                .catch(() => {});
-        }
+    return jsonify(result)
 
-        function updateUI() {
-            const name = petData.pet_name || 'Питомец';
-            const type = petData.pet_type || 'кошка';
-            const emoji = petEmojis[type] || '🐾';
-            const stage = petData.stage || 'Зарождение ✨';
-            document.getElementById('petName').innerText = name;
-            document.getElementById('petEmoji').innerText = emoji;
-            document.getElementById('stage').innerText = 'Стадия: ' + stage;
-            document.getElementById('golod').innerText = petData.голод ?? 0;
-            document.getElementById('schastie').innerText = petData.счастье ?? 0;
-            document.getElementById('gigiena').innerText = petData.гигиена ?? 0;
-            document.getElementById('energia').innerText = petData.энергия ?? 0;
-            document.getElementById('disciplina').innerText = petData.дисциплина ?? 0;
-            document.getElementById('lapki').innerText = petData.лапки ?? 0;
-            document.getElementById('homePetName').innerText = name;
-            document.getElementById('homePetEmoji').innerText = emoji;
-            document.getElementById('streakCount').innerText = petData.streak || 0;
-            document.getElementById('shopLapki').innerText = petData.лапки || 0;
-            fetch(`/api/profile/${user_id}`)
-                .then(res => res.json())
-                .then(data => { if (!data.error) { document.getElementById('achievementsCount').innerText = (data.achievements || []).length; document.getElementById('achievementsTotal').innerText = data.achievements_total || 26; } });
-            updateDailyTimer();
-        }
+@app.route('/api/buy/<int:user_id>/<int:item_id>', methods=['POST'])
+def api_buy(user_id, item_id):
+    pet = get_pet(user_id)
+    if not pet:
+        return jsonify({'error': 'Нет питомца'}), 404
+    item_response = supabase.table('shop_items').select('*').eq('id', item_id).execute()
+    if not item_response.data:
+        return jsonify({'error': 'Товар не найден'}), 404
+    item = item_response.data[0]
+    if pet['лапки'] < item['price']:
+        return jsonify({'error': 'Недостаточно лапок!'}), 400
+    new_lapki = pet['лапки'] - item['price']
+    new_spent = pet.get('total_lapki_spent', 0) + item['price']
+    update_pet(user_id, {'лапки': new_lapki, 'total_lapki_spent': new_spent})
+    add_to_inventory(user_id, item_id)
+    return jsonify({'message': f'✅ {item["name"]} куплен!', 'lapki': new_lapki})
 
-        function updateDailyTimer() {
-            const now = new Date();
-            const tomorrow = new Date(now); tomorrow.setDate(tomorrow.getDate() + 1); tomorrow.setHours(0, 0, 0, 0);
-            const diff = tomorrow - now;
-            if (diff <= 0) { document.getElementById('dailyTimer').innerText = '✅ Доступно!'; return; }
-            const hours = String(Math.floor(diff / 3600000)).padStart(2, '0');
-            const minutes = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
-            const seconds = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
-            document.getElementById('dailyTimer').innerText = `Получить через: ${hours}:${minutes}:${seconds}`;
-        }
+@app.route('/api/feed/<int:user_id>', methods=['POST'])
+def api_feed(user_id):
+    pet = get_pet(user_id)
+    if not pet:
+        return jsonify({'error': 'Нет питомца'}), 404
+    if pet.get('sleep_until') and datetime.fromisoformat(pet['sleep_until']) > datetime.now():
+        return jsonify({'error': '😴 Питомец спит!'}), 400
+    if pet['голод'] >= 100:
+        return jsonify({'error': 'Я уже сыт! 🍖'}), 400
+    new_val = min(100, pet['голод'] + 20)
+    update_pet(user_id, {'голод': new_val, 'feed_count': pet.get('feed_count', 0) + 1})
+    return jsonify({'голод': new_val, 'message': 'Покормлен! +20'})
 
-        function action(type) {
-            if (!user_id) return;
-            fetch(`/api/${type}/${user_id}`, { method: 'POST' })
-                .then(res => res.json().then(data => ({ status: res.status, body: data })))
-                .then(({ status, body }) => {
-                    if (status === 400) { showNotification('⚠️ ' + (body.error || 'Ошибка')); return; }
-                    showNotification('✅ ' + (body.message || 'Готово!'), false);
-                    loadPet();
-                })
-                .catch(() => {});
-        }
+@app.route('/api/play/<int:user_id>', methods=['POST'])
+def api_play(user_id):
+    pet = get_pet(user_id)
+    if not pet:
+        return jsonify({'error': 'Нет питомца'}), 404
+    if pet.get('sleep_until') and datetime.fromisoformat(pet['sleep_until']) > datetime.now():
+        return jsonify({'error': '😴 Питомец спит!'}), 400
+    if pet['энергия'] < 30:
+        return jsonify({'error': 'Я слишком устал! 😴'}), 400
+    new_s = min(100, pet['счастье'] + 15)
+    new_h = max(0, pet['голод'] - 2)
+    new_e = max(0, pet['энергия'] - 10)
+    series = pet.get('games_series', 0) + 1
+    if series >= 3:
+        new_h = max(0, new_h - 5)
+        series = 0
+    update_pet(user_id, {'счастье': new_s, 'голод': new_h, 'энергия': new_e, 'games_series': series})
+    return jsonify({'счастье': new_s, 'голод': new_h, 'энергия': new_e, 'message': 'Поиграл!'})
 
-        function showNotification(text, isError = true) {
-            const msg = document.getElementById('message');
-            if (msg) { msg.innerText = text; msg.style.color = isError ? '#b080ff' : '#7c5cbf'; setTimeout(() => { msg.style.color = '#b080ff'; }, 5000); }
-        }
+@app.route('/api/wash/<int:user_id>', methods=['POST'])
+def api_wash(user_id):
+    pet = get_pet(user_id)
+    if not pet:
+        return jsonify({'error': 'Нет питомца'}), 404
+    if pet.get('sleep_until') and datetime.fromisoformat(pet['sleep_until']) > datetime.now():
+        return jsonify({'error': '😴 Питомец спит!'}), 400
+    new_val = min(100, pet['гигиена'] + 25)
+    update_pet(user_id, {'гигиена': new_val, 'wash_count': pet.get('wash_count', 0) + 1})
+    return jsonify({'гигиена': new_val, 'message': 'Помыт! +25'})
 
-        document.querySelectorAll('.nav-item').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const pageId = this.dataset.page;
-                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-                document.getElementById(pageId).classList.add('active');
-                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-                this.classList.add('active');
-                if (pageId === 'page-pet') loadPet();
-                if (pageId === 'page-profile') loadProfile();
-                if (pageId === 'page-shop') loadShop();
-                if (pageId === 'page-games') document.getElementById('gameMessage').innerText = '';
-                if (pageId === 'page-home') loadInventory();
-            });
-        });
+@app.route('/api/sleep/<int:user_id>', methods=['POST'])
+def api_sleep(user_id):
+    pet = get_pet(user_id)
+    if not pet:
+        return jsonify({'error': 'Нет питомца'}), 404
+    if pet['энергия'] >= 100:
+        return jsonify({'error': '😊 Не хочет спать!'}), 400
+    sleep_until = (datetime.now() + timedelta(hours=1)).isoformat()
+    update_pet(user_id, {'sleep_until': sleep_until, 'sleep_count': pet.get('sleep_count', 0) + 1})
+    return jsonify({'message': '💤 Уснул на час!'})
 
-        function openGame(game) {
-            currentGame = game;
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('gamePage').classList.add('active');
-            const title = document.getElementById('gameTitle');
-            const content = document.getElementById('gameContent');
-            if (game === 'dice') {
-                title.innerText = '🎲 Призрачный куб';
-                content.innerHTML = `<button class="btn btn-game" onclick="diceRoll()" style="width:100%;">Кинуть кубик</button><div id="diceResult" class="game-result"></div>`;
-            } else if (game === 'guess_easy' || game === 'guess_hard') {
-                const max = game === 'guess_easy' ? 10 : 100;
-                const mode = game === 'guess_easy' ? 'easy' : 'hard';
-                title.innerText = game === 'guess_easy' ? '🔮 Шёпот цифр (1–10)' : '🧠 Проклятая загадка (1–100)';
-                content.innerHTML = `<div style="font-size:18px; color:#a8a0c2;">Введи число от 1 до ${max}</div><input type="number" id="guessInput" min="1" max="${max}"><button class="btn btn-game" onclick="guessNumber()" style="width:100%;">Проверить</button><div id="guessResult" class="game-result"></div>`;
-                fetch(`/api/start_guess/${user_id}/${mode}`, { method: 'POST' }).catch(() => {});
-            }
-        }
+@app.route('/api/train/<int:user_id>', methods=['POST'])
+def api_train(user_id):
+    pet = get_pet(user_id)
+    if not pet:
+        return jsonify({'error': 'Нет питомца'}), 404
+    if pet.get('sleep_until') and datetime.fromisoformat(pet['sleep_until']) > datetime.now():
+        return jsonify({'error': '😴 Питомец спит!'}), 400
+    if pet['энергия'] < 20:
+        return jsonify({'error': 'Я устал для тренировки! 😴'}), 400
+    new_val = min(100, pet['дисциплина'] + 15)
+    update_pet(user_id, {'дисциплина': new_val})
+    return jsonify({'дисциплина': new_val, 'message': 'Тренировка! +15'})
 
-        function closeGame() {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('page-games').classList.add('active');
-        }
+@app.route('/api/dice/<int:user_id>', methods=['POST'])
+def api_dice(user_id):
+    pet = get_pet(user_id)
+    if not pet:
+        return jsonify({'error': 'Нет питомца'}), 404
+    if pet.get('sleep_until') and datetime.fromisoformat(pet['sleep_until']) > datetime.now():
+        return jsonify({'error': '😴 Питомец спит!'}), 400
+    now = time.time()
+    if user_id in dice_cooldown and now - dice_cooldown[user_id] < 60:
+        return jsonify({'error': '⏳ Подожди 60 секунд!'}), 400
+    dice_cooldown[user_id] = now
+    user_roll = random.randint(1, 6)
+    bot_roll = random.randint(1, 6)
+    win = user_roll > bot_roll
+    lose = user_roll < bot_roll
+    draw = user_roll == bot_roll
+    bonus = 0
+    if win:
+        series = pet.get('games_series', 0) + 1
+        bonus = 5 * series
+        update_pet(user_id, {'лапки': pet['лапки'] + bonus, 'games_series': series, 'games_played': pet.get('games_played', 0) + 1, 'games_won': pet.get('games_won', 0) + 1, 'total_lapki_earned': pet.get('total_lapki_earned', 0) + bonus})
+    elif lose:
+        update_pet(user_id, {'games_series': 0, 'games_played': pet.get('games_played', 0) + 1})
+    else:
+        update_pet(user_id, {'games_played': pet.get('games_played', 0) + 1})
+    return jsonify({
+        'user_roll': user_roll,
+        'bot_roll': bot_roll,
+        'win': win,
+        'lose': lose,
+        'draw': draw,
+        'bonus': bonus
+    })
 
-        function diceRoll() {
-            if (!user_id) return;
-            fetch(`/api/dice/${user_id}`, { method: 'POST' })
-                .then(res => res.json())
-                .then(data => {
-                    const result = document.getElementById('diceResult');
-                    const emojis = {1: '⚀', 2: '⚁', 3: '⚂', 4: '⚃', 5: '⚄', 6: '⚅'};
-                    let text = `🎲 Ты: ${emojis[data.user_roll]} (${data.user_roll})\n🎲 Бот: ${emojis[data.bot_roll]} (${data.bot_roll})`;
-                    if (data.win) text += `\n✅ Ты выиграл! +${data.bonus} лапок!`;
-                    else if (data.lose) text += '\n❌ Ты проиграл! Ничего не заработал.';
-                    else text += '\n🤝 Ничья! Никто не получил лапок.';
-                    result.innerHTML = text + `<div style="margin-top:12px;"><button class="btn btn-restart" onclick="diceRoll()">🎲 Кинуть ещё</button></div>`;
-                    loadPet();
-                })
-                .catch(() => { document.getElementById('diceResult').innerText = '❌ Ошибка'; });
-        }
+@app.route('/api/guess/<int:user_id>', methods=['POST'])
+def api_guess(user_id):
+    data = request.get_json()
+    guess = data.get('guess')
+    pet = get_pet(user_id)
+    if not pet:
+        return jsonify({'error': 'Нет питомца'}), 404
+    game = game_data.get(user_id)
+    if not game:
+        return jsonify({'error': 'Игра не начата'}), 400
+    game['attempts'] += 1
+    number = game['number']
+    if guess == number:
+        bonus = 25 if game['type'] == 'hard' else 5
+        update_pet(user_id, {'лапки': pet['лапки'] + bonus, 'total_lapki_earned': pet.get('total_lapki_earned', 0) + bonus})
+        game_data.pop(user_id, None)
+        return jsonify({'win': True, 'bonus': bonus})
+    if game['attempts'] >= game['max_attempts']:
+        game_data.pop(user_id, None)
+        return jsonify({'lose': True, 'number': number})
+    hint = 'больше' if guess < number else 'меньше'
+    return jsonify({
+        'win': False,
+        'lose': False,
+        'hint': hint,
+        'attempts_left': game['max_attempts'] - game['attempts']
+    })
 
-        function guessNumber() {
-            if (!user_id) return;
-            const input = document.getElementById('guessInput');
-            const guess = parseInt(input.value);
-            if (isNaN(guess)) { document.getElementById('guessResult').innerText = '❌ Введи число!'; return; }
-            fetch(`/api/guess/${user_id}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ guess: guess })
-            })
-            .then(res => res.json())
-            .then(data => {
-                const result = document.getElementById('guessResult');
-                if (data.win) {
-                    result.innerHTML = `🎉 Ты угадал! +${data.bonus} лапок!<div style="margin-top:12px;"><button class="btn btn-restart" onclick="openGame('${currentGame}')">🔢 Играть снова</button></div>`;
-                    loadPet();
-                } else if (data.lose) {
-                    result.innerHTML = `❌ Ты не угадал! Загаданное число было ${data.number}.<div style="margin-top:12px;"><button class="btn btn-restart" onclick="openGame('${currentGame}')">🔢 Играть снова</button></div>`;
-                    loadPet();
-                } else {
-                    const emoji = data.hint === 'больше' ? '📈' : '📉';
-                    result.innerText = `${emoji} Загаданное число ${data.hint}. Осталось попыток: ${data.attempts_left}`;
-                }
-                input.value = '';
-            })
-            .catch(() => { document.getElementById('guessResult').innerText = '❌ Ошибка'; });
-        }
+@app.route('/api/start_guess/<int:user_id>/<string:mode>', methods=['POST'])
+def api_start_guess(user_id, mode):
+    pet = get_pet(user_id)
+    if not pet:
+        return jsonify({'error': 'Нет питомца'}), 404
+    if pet.get('sleep_until') and datetime.fromisoformat(pet['sleep_until']) > datetime.now():
+        return jsonify({'error': '😴 Питомец спит!'}), 400
+    if mode == 'easy':
+        number = random.randint(1, 10)
+        max_attempts = 3
+    else:
+        number = random.randint(1, 100)
+        max_attempts = 10
+    game_data[user_id] = {
+        'type': mode,
+        'number': number,
+        'attempts': 0,
+        'max_attempts': max_attempts
+    }
+    return jsonify({'status': 'ok'})
 
-        setInterval(updateDailyTimer, 1000);
-        tg.ready();
-        loadPet();
-        loadShop();
-    </script>
-</body>
-</html>
+@app.route('/images/<path:filename>')
+def serve_images(filename):
+    return send_from_directory('webapp/images', filename)
+
+@app.route('/')
+def index():
+    return send_from_directory('webapp', 'index.html')
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
