@@ -121,7 +121,10 @@
                 <div class="pet-name" id="homePetName">Питомец</div>
                 <span class="emoji" id="homePetEmoji">🐱</span>
                 <div id="homeStatus" class="stage">😊 Чувствует себя отлично</div>
-                <button class="btn" onclick="loadInventory()" style="margin-top:12px; width:100%; padding:8px; font-size:14px; background:rgba(124,92,191,0.5); border-radius:40px; border:1px solid #3c3a5c; color:#e0d7ff;">📦 Инвентарь</button>
+                <!-- ✅ ИСПРАВЛЕНО: кнопка инвентаря уменьшена -->
+                <button class="btn" onclick="loadInventory()" style="margin-top:12px; padding:6px 12px; font-size:13px; width:auto; background:rgba(124,92,191,0.5); border-radius:40px; border:1px solid #3c3a5c; color:#e0d7ff;">
+                    📦 Инвентарь
+                </button>
                 <div id="inventoryContent" style="width:100%; margin-top:10px;"></div>
             </div>
         </div>
@@ -204,19 +207,22 @@
             container.innerHTML = html;
         }
 
+        // ✅ ИСПРАВЛЕНО: добавлена полная статистика в профиль
         function renderProfile(data) {
             document.getElementById('profileName').innerText = '👤 ' + (data.pet_name || 'Питомец');
             const statsHtml = `
                 <div class="stat-item">🐾 Лапки: <b>${data.lapki}</b></div>
                 <div class="stat-item">📊 Сообщений: <b>${data.total_messages}</b></div>
-                <div class="stat-item">🎮 Игр: <b>${data.games_played}</b></div>
-                <div class="stat-item">🏆 Побед: <b>${data.games_won}</b></div>
+                <div class="stat-item">🎮 Игр сыграно: <b>${data.games_played}</b></div>
+                <div class="stat-item">🏆 Побед в играх: <b>${data.games_won}</b></div>
+                <div class="stat-item">🔥 Серия побед: <b>${data.games_series}</b></div>
                 <div class="stat-item">🍖 Кормлений: <b>${data.feed_count}</b></div>
                 <div class="stat-item">🫧 Купаний: <b>${data.wash_count}</b></div>
                 <div class="stat-item">💤 Снов: <b>${data.sleep_count}</b></div>
-                <div class="stat-item">🐾 Заработано: <b>${data.total_lapki_earned}</b></div>
-                <div class="stat-item">🔥 Серия: <b>${data.streak}</b> дней</div>
-                <div class="stat-item">📅 В игре: <b>${data.joined_at || '—'}</b></div>
+                <div class="stat-item">⚡ Тренировок: <b>${data.train_count}</b></div>
+                <div class="stat-item">🐾 Заработано лапок: <b>${data.total_lapki_earned}</b></div>
+                <div class="stat-item">🔥 Серия входов: <b>${data.streak}</b> дней</div>
+                <div class="stat-item">📅 В игре с: <b>${data.joined_at || '—'}</b></div>
             `;
             document.getElementById('profileStats').innerHTML = statsHtml;
             fetch(`/api/achievements`)
@@ -349,10 +355,16 @@
             document.getElementById('page-games').classList.add('active');
         }
 
+        // ✅ ИСПРАВЛЕНО: кубики с обработкой ошибок
         function diceRoll() {
             if (!user_id) return;
             fetch(`/api/dice/${user_id}`, { method: 'POST' })
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) {
+                        return res.json().then(data => { throw new Error(data.error || 'Ошибка сервера'); });
+                    }
+                    return res.json();
+                })
                 .then(data => {
                     const result = document.getElementById('diceResult');
                     const emojis = {1: '⚀', 2: '⚁', 3: '⚂', 4: '⚃', 5: '⚄', 6: '⚅'};
@@ -363,7 +375,9 @@
                     result.innerHTML = text + `<div style="margin-top:12px;"><button class="btn btn-restart" onclick="diceRoll()">🎲 Кинуть ещё</button></div>`;
                     loadPet();
                 })
-                .catch(() => { document.getElementById('diceResult').innerText = '❌ Ошибка'; });
+                .catch(error => {
+                    document.getElementById('diceResult').innerText = '❌ ' + error.message;
+                });
         }
 
         function guessNumber() {
@@ -400,4 +414,4 @@
         loadShop();
     </script>
 </body>
-                    </html>
+</html>
