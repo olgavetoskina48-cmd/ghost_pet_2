@@ -59,7 +59,6 @@
         .achievement-item.locked { opacity: 0.5; }
         .inventory-item { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(60, 58, 92, 0.3); color: #c8c0e0; font-size: 14px; }
         .inventory-item:last-child { border-bottom: none; }
-        /* ✅ КНОПКА ИНВЕНТАРЯ В УГЛУ */
         .inventory-btn-wrap { position: absolute; top: 10px; right: 10px; z-index: 20; }
         .inventory-btn-wrap .btn { padding: 4px 10px; font-size: 11px; min-width: auto; width: auto; flex: none; background: rgba(124,92,191,0.4); border: 1px solid rgba(124,92,191,0.2); border-radius: 20px; color: #b080ff; }
         .inventory-btn-wrap .btn:active { transform: scale(0.95); }
@@ -122,9 +121,8 @@
         <!-- СТРАНИЦА ДОМ -->
         <div class="page" id="page-home">
             <div class="page-content" style="position: relative;">
-                <!-- ✅ КНОПКА ИНВЕНТАРЯ — МАЛЕНЬКАЯ И В УГЛУ -->
                 <div class="inventory-btn-wrap">
-                    <button class="btn" onclick="loadInventory()">📦</button>
+                    <button class="btn" onclick="openInventory()">📦</button>
                 </div>
                 <div class="pet-name" id="homePetName">Питомец</div>
                 <span class="emoji" id="homePetEmoji">🐱</span>
@@ -148,6 +146,15 @@
                 <div class="pet-name" style="font-size:24px;" id="profileName">👤 Профиль</div>
                 <div id="profileStats" class="profile-stat"></div>
                 <div id="profileAchievements" class="achievement-list"></div>
+            </div>
+        </div>
+
+        <!-- СТРАНИЦА ИНВЕНТАРЬ (ОТДЕЛЬНАЯ) -->
+        <div class="page" id="page-inventory">
+            <div class="page-content">
+                <button class="btn-back" onclick="closeInventory()">← Назад</button>
+                <div class="pet-name" style="font-size:24px;">📦 Инвентарь</div>
+                <div id="inventoryFullContent" style="width:100%; margin-top:10px;"></div>
             </div>
         </div>
 
@@ -195,23 +202,40 @@
                 .catch(() => {});
         }
 
-        function loadInventory() {
+        function loadInventoryFull() {
             if (!user_id) return;
             fetch(`/api/inventory/${user_id}`)
                 .then(res => res.json())
-                .then(data => renderInventory(data))
+                .then(data => renderInventoryFull(data))
                 .catch(() => {});
         }
 
-        function renderInventory(items) {
-            const container = document.getElementById('inventoryContent');
-            if (!items || items.length === 0) { container.innerHTML = '<div class="message" style="color:#a8a0c2;">📭 Инвентарь пуст</div>'; return; }
-            let html = '<div style="color:#e0d7ff; font-size:16px; margin-bottom:6px;">📦 Ваши вещи</div>';
-            items.forEach(item => { html += `<div class="inventory-item"><span>${item.emoji} ${item.name}</span><span>×${item.quantity}</span></div>`; });
+        function renderInventoryFull(items) {
+            const container = document.getElementById('inventoryFullContent');
+            if (!items || items.length === 0) {
+                container.innerHTML = '<div class="message" style="color:#a8a0c2; text-align:center; margin-top:30px;">📭 Инвентарь пуст</div>';
+                return;
+            }
+            let html = '';
+            items.forEach(item => {
+                html += `<div class="inventory-item"><span>${item.emoji} ${item.name}</span><span>×${item.quantity}</span></div>`;
+            });
             container.innerHTML = html;
         }
 
-        // ✅ ПРОФИЛЬ — СТАТИСТИКА
+        function openInventory() {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-inventory').classList.add('active');
+            loadInventoryFull();
+        }
+
+        function closeInventory() {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-home').classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.querySelector('.nav-item[data-page="page-home"]').classList.add('active');
+        }
+
         function renderProfile(data) {
             document.getElementById('profileName').innerText = '👤 ' + (data.pet_name || 'Питомец');
             const statsHtml = `
@@ -332,7 +356,9 @@
                 if (pageId === 'page-profile') loadProfile();
                 if (pageId === 'page-shop') loadShop();
                 if (pageId === 'page-games') document.getElementById('gameMessage').innerText = '';
-                if (pageId === 'page-home') loadInventory();
+                if (pageId === 'page-home') {
+                    document.getElementById('inventoryContent').innerHTML = '';
+                }
             });
         });
 
@@ -350,7 +376,6 @@
                 const mode = game === 'guess_easy' ? 'easy' : 'hard';
                 title.innerText = game === 'guess_easy' ? '🔮 Шёпот цифр (1–10)' : '🧠 Проклятая загадка (1–100)';
                 content.innerHTML = `<div style="font-size:18px; color:#a8a0c2;">Введи число от 1 до ${max}</div><input type="number" id="guessInput" min="1" max="${max}"><button class="btn btn-game" onclick="guessNumber()" style="width:100%;">Проверить</button><div id="guessResult" class="game-result"></div>`;
-                // ✅ ИСПРАВЛЕНО: запускаем игру через API
                 fetch(`/api/start_guess/${user_id}/${mode}`, { method: 'POST' })
                     .then(res => res.json())
                     .then(data => {
@@ -393,7 +418,6 @@
                 });
         }
 
-        // ✅ ИСПРАВЛЕНО: угадайка теперь работает без undefined
         function guessNumber() {
             if (!user_id) return;
             const input = document.getElementById('guessInput');
@@ -430,4 +454,4 @@
         loadShop();
     </script>
 </body>
-    </html>
+</html>
