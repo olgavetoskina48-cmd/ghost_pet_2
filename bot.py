@@ -10,7 +10,7 @@ from flask import Flask, send_from_directory, request, jsonify
 # --- КОНФИГ ---
 TOKEN = "8869752953:AAF2gOnS-bFts-EGsS1PZZ4pfUrRXLwkN-M"
 SUPABASE_URL = "https://jzscsndwuchzlellgqea.supabase.co"
-SUPABASE_KEY = "sb_publishable_SE36vskhPymnTTJ6cYjxDw_qFVP2I8A"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp6c2NzbmR3dWNoemxlbGxncWVhIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MjMzNTQ5MywiZXhwIjoyMDk3OTExNDkzfQ.1Btbaq5DfvUxOTtuw-pWEq2F4DZifdF3KOKH_MD4HSM"
 
 # --- ИНИЦИАЛИЗАЦИЯ ---
 bot = TeleBot(TOKEN)
