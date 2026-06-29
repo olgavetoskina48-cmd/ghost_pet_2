@@ -149,7 +149,7 @@
             </div>
         </div>
 
-        <!-- СТРАНИЦА ИНВЕНТАРЬ (ОТДЕЛЬНАЯ) -->
+        <!-- СТРАНИЦА ИНВЕНТАРЬ -->
         <div class="page" id="page-inventory">
             <div class="page-content">
                 <button class="btn-back" onclick="closeInventory()">← Назад</button>
@@ -356,9 +356,6 @@
                 if (pageId === 'page-profile') loadProfile();
                 if (pageId === 'page-shop') loadShop();
                 if (pageId === 'page-games') document.getElementById('gameMessage').innerText = '';
-                if (pageId === 'page-home') {
-                    document.getElementById('inventoryContent').innerHTML = '';
-                }
             });
         });
 
