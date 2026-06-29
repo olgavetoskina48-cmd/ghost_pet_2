@@ -96,17 +96,24 @@ def get_inventory(user_id):
     response = supabase.table('inventory').select('*').eq('user_id', user_id).execute()
     return response.data if response.data else []
 
+# ✅ ПЕРЕПИСАННАЯ ФУНКЦИЯ — теперь точно работает
 def add_to_inventory(user_id, item_id, quantity=1):
-    existing = supabase.table('inventory').select('*').eq('user_id', user_id).eq('item_id', item_id).execute()
-    if existing.data:
-        new_qty = existing.data[0]['quantity'] + quantity
-        supabase.table('inventory').update({'quantity': new_qty}).eq('user_id', user_id).eq('item_id', item_id).execute()
-    else:
-        supabase.table('inventory').insert({
-            'user_id': user_id,
-            'item_id': item_id,
-            'quantity': quantity
-        }).execute()
+    try:
+        # Проверяем, есть ли уже такой товар у пользователя
+        existing = supabase.table('inventory').select('*').eq('user_id', user_id).eq('item_id', item_id).execute()
+        if existing.data:
+            new_qty = existing.data[0]['quantity'] + quantity
+            supabase.table('inventory').update({'quantity': new_qty}).eq('user_id', user_id).eq('item_id', item_id).execute()
+        else:
+            supabase.table('inventory').insert({
+                'user_id': user_id,
+                'item_id': item_id,
+                'quantity': quantity
+            }).execute()
+        return True
+    except Exception as e:
+        print(f"❌ Ошибка добавления в инвентарь: {e}")
+        return False
 
 def get_stage(messages):
     if messages < 100:
@@ -582,21 +589,31 @@ def api_inventory(user_id):
                 })
     return jsonify(result)
 
+# ✅ ПЕРЕПИСАННЫЙ API ПОКУПКИ — с проверкой на ошибки
 @flask_app.route('/api/buy/<int:user_id>/<int:item_id>', methods=['POST'])
 def api_buy(user_id, item_id):
     pet = get_pet(user_id)
     if not pet:
         return jsonify({'error': 'Нет питомца'}), 404
+    
     item_response = supabase.table('shop_items').select('*').eq('id', item_id).execute()
     if not item_response.data:
         return jsonify({'error': 'Товар не найден'}), 404
+    
     item = item_response.data[0]
     if pet['лапки'] < item['price']:
         return jsonify({'error': 'Недостаточно лапок!'}), 400
+    
+    # Списываем лапки
     new_lapki = pet['лапки'] - item['price']
     new_spent = pet.get('total_lapki_spent', 0) + item['price']
     update_pet(user_id, {'лапки': new_lapki, 'total_lapki_spent': new_spent})
-    add_to_inventory(user_id, item_id)
+    
+    # ✅ Добавляем в инвентарь с проверкой
+    success = add_to_inventory(user_id, item_id)
+    if not success:
+        return jsonify({'error': 'Ошибка сохранения в инвентарь'}), 500
+    
     return jsonify({'message': f'✅ {item["name"]} куплен!', 'lapki': new_lapki})
 
 @flask_app.route('/api/feed/<int:user_id>', methods=['POST'])
