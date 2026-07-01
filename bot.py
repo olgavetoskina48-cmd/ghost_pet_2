@@ -166,7 +166,6 @@ def check_achievements(user_id, pet):
             unlock_achievement(user_id, ach['id'])
             bot.send_message(user_id, f"🏆 {ach['emoji']} {ach['name']}!\n{ach['description']}")
 
-# ✅ ФУНКЦИЯ ДЛЯ ОБНОВЛЕНИЯ СЕРИИ ВХОДА
 def update_streak(user_id, pet):
     today = date.today()
     last_date = pet.get('streak_date')
@@ -174,17 +173,15 @@ def update_streak(user_id, pet):
     if last_date:
         last_date_obj = datetime.fromisoformat(last_date).date()
         if last_date_obj == today:
-            return  # уже обновлено сегодня
+            return
         elif last_date_obj == today - timedelta(days=1):
             new_streak = pet.get('streak', 0) + 1
             update_pet(user_id, {'streak': new_streak, 'streak_date': today.isoformat()})
             return
         else:
-            # пропущен день — сброс
             update_pet(user_id, {'streak': 0, 'streak_date': today.isoformat()})
             return
     else:
-        # первый вход
         update_pet(user_id, {'streak': 1, 'streak_date': today.isoformat()})
 
 # --- КОМАНДЫ БОТА ---
@@ -531,7 +528,6 @@ def handle_messages(message):
         return
     user_id = message.from_user.id
     
-    # Антиспам
     now = time.time()
     if user_id in last_message_time and now - last_message_time[user_id] < 2:
         return
@@ -541,7 +537,6 @@ def handle_messages(message):
     if not pet:
         return
     
-    # ✅ Обновляем серию входов при каждом сообщении
     update_streak(user_id, pet)
     
     new_total = pet['total_messages'] + 1
